@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head title="Nakiya Bar Order">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/script.js">
+  </script>
+</head>
+<body>
+
+<div class="top">
+  <h3>卓</h3>
+  <select id="table" onchange="onTableSelect()"></select>
+  <div id="tableLabel"></div>
+</div>
+
+<div id="menuArea" class="hidden">
+
+<button id="originalBtn" onclick="toggleOriginal()">オリジナルカクテル</button>
+
+<!-- 通常 -->
+<div id="normalArea">
+<h3>リキュール①</h3>
+<div id="l1Area" class="grid"></div>
+
+<h3>リキュール②</h3>
+<div id="l2Area" class="grid"></div>
+
+<h3>サワー</h3>
+<div class="grid sour-area">
+<label><input type="radio" name="sour" value="あり"><div class="card white">あり</div></label>
+<label><input type="radio" name="sour" value="なし"><div class="card white">なし</div></label>
+</div>
+</div>
+
+<!-- オリジナル -->
+<div id="originalArea" class="hidden">
+<h3>オリジナルカクテル</h3>
+<div id="originalList"></div>
+</div>
+
+<button id="addBtn" onclick="addToCart()">追加</button>
+<button id="orderCheckBtn" onclick="openCart()">注文確認</button>
+
+</div>
+
+<!-- モーダル -->
+<div id="cartModal" class="modal">
+  <div class="modal-content">
+    <h3>注文確認</h3>
+    <div id="cartList"></div>
+    <button id="sendBtn" onclick="sendOrder()">送信</button>
+    <button id="closeBtn" onclick="closeCart()">閉じる</button>
+  </div>
+</div>
+</body>
+</html>
