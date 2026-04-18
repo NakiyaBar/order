@@ -10,6 +10,7 @@ let cart= [];
 
 /* オリジナルカクテル用フラグ */
 let isOriginal= false;
+let isFood = false; // ←追加
 
 /**
  * 初期化処理
@@ -27,6 +28,7 @@ fetch(API_URL)
         render("l1Area","l1",data.liqueur);
         render("l2Area","l2",data.liqueur);
         renderOriginal(data.original);
+        renderFood(data.food); // ←追加
         checkOrder();
     });
 
@@ -128,6 +130,39 @@ function toggleOriginal(){
     originalBtn.classList.toggle("active",isOriginal);
 }
 
+function toggleFood(){
+    isFood = !isFood;
+
+    // 通常カクテル非表示
+    normalArea.classList.toggle("hidden", isFood);
+
+    // フード表示
+    foodArea.classList.toggle("hidden", !isFood);
+
+    // ボタン状態
+    foodBtn.classList.toggle("active", isFood);
+
+    // 🔥オリジナル解除（共存防止）
+    if(isFood && isOriginal){
+        toggleOriginal();
+    }
+}
+
+function renderFood(data){
+    foodList.innerHTML="";
+
+    data.forEach(item=>{
+        foodList.innerHTML+=`
+    <label>
+      <input type="radio" name="food" value="${item[0]}">
+      <div class="card food">
+        <div>${item[0]}</div>
+        <div>${item[1]}</div>
+      </div>
+    </label>`;
+    });
+}
+
 /**
  * 各種ボタンの選択状態から、メニューの値を返却
  *
@@ -172,7 +207,13 @@ function addToCart(){
         }
 
         name = o;
-
+    } else if (isFood) { // ←ここ追加
+        const f = getSelected("food");
+        if(!f){
+            return alert("フードを選択してください！！");
+        }
+        name = f;
+        
     } else {
         // 通常カクテルメニューの場合
         // リキュール１メニューの選択状態を取得
@@ -198,13 +239,22 @@ function addToCart(){
 
     // メニューボタン選択状態をリセット
     // TODO forEachを使うか要確認。これだとただ重くなるだけな気がしてる。
-    document.querySelectorAll("input").forEach(i=>i.checked=false);
+    // 🔥ここも少し修正（フード追加）
+    document.querySelectorAll(
+      'input[name="l1"],input[name="l2"],input[name="sour"],input[name="original"],input[name="food"]'
+    ).forEach(i=>i.checked=false);
+
 
     // 🔥ここ重要
     // TODO 上のforEachと合わせて修正。forEachを使用してるのが原因で、
     //      消す必要のないオリジナルカクテルボタンの有効状態もリセットされてる。
     if(isOriginal){
         toggleOriginal();
+    }
+
+    // フード解除（追加）
+    if(isFood){
+        toggleFood();
     }
 
     // カートの内容チェック
