@@ -17,8 +17,16 @@
 
 <div id="menuArea" class="hidden">
 
-<button id="originalBtn" onclick="toggleOriginal()">オリジナルカクテル</button>
+<!-- 🔥ここ追加 -->
+<div class="mode-buttons">
+  <button id="originalBtn" onclick="toggleOriginal()">オリジナルカクテル</button>
+  <button id="foodBtn" onclick="toggleFood()">フード</button>
+</div>
 
+<!-- 通常 -->
+<div id="normalArea">
+
+  
 <!-- 通常 -->
 <div id="normalArea">
 <h3>リキュール①</h3>
@@ -40,17 +48,15 @@
 <div id="originalList"></div>
 </div>
 
+<!-- 🔥フード -->
+<div id="foodArea" class="hidden">
+  <h3>フード</h3>
+  <div id="foodList"></div>
+</div>
+  
 <button id="addBtn" onclick="addToCart()">追加</button>
 <button id="orderCheckBtn" onclick="openCart()">注文確認</button>
 
-</div>
-
-<!-- フードボタン -->
-<button id="foodBtn" onclick="toggleFood()">フード</button>
-
-<!-- フードエリア -->
-<div id="foodArea" class="hidden">
-  <div id="foodList"></div>
 </div>
   
 <!-- モーダル -->
