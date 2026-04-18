@@ -100,6 +100,11 @@ button {
     color:white;
 }
 
+.card.food {
+  background: #fff3e0;
+  border: 2px solid #ff9800;
+}
+
 /* モーダル */
 .modal {
     position:fixed;
