@@ -28,11 +28,12 @@ body {
     gap: 12px;
 }
 
+/* 卓選択のプルダウンを広げる設定 */
 #table {
-    flex: 1; /* 可能な限り幅を広げる */
-    min-width: 200px; /* 最低幅を確保 */
-    padding: 10px;
-    font-size: 18px;
+    flex: 1;         /* 親要素のスペースを最大限に使う */
+    min-width: 200px; /* 最低限の幅を確保 */
+    padding: 10px;    /* 内側の余白を少し増やして押しやすく */
+    font-size: 18px;  /* 文字を少し大きく */
     border-radius: 8px;
     border: 1px solid #ccc;
 }
