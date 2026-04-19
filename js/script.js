@@ -229,30 +229,36 @@ function removeItem(i) {
 }
 
 // スプレッドシートへ送信
-function sendOrder() {
-    const table = document.getElementById("table").value;
-    if (!table) return alert("卓を選択してください");
-    if (cart.length === 0) return alert("カートが空です");
+function sendOrder(){
+  const btn = document.getElementById("sendBtn");
 
-    // ボタンを無効化して連打防止
-    const sendBtn = document.getElementById("sendBtn");
-    if (sendBtn) sendBtn.disabled = true;
+  // 連打防止
+  if(btn.disabled) return;
+  btn.disabled = true;
+  btn.innerText = "送信中...";
 
-    fetch(API_URL, {
-        method: "POST",
-        body: JSON.stringify({ table, items: cart })
+  fetch(API_URL,{
+    method:"POST",
+    body:JSON.stringify({
+      table:table.value,
+      items:cart
     })
-    .then(() => {
-        alert("送信しました");
-        cart = [];
-        closeCart();
-        checkOrder();
-    })
-    .catch(err => {
-        console.error("送信エラー:", err);
-        alert("送信に失敗しました");
-    })
-    .finally(() => {
-        if (sendBtn) sendBtn.disabled = false;
-    });
+  })
+  .then(res => res.text())
+  .then(res => {
+    if(res === "ok"){
+      alert("送信完了！");
+      cart = [];
+      closeCart();
+    }else{
+      alert("エラー：" + res);
+    }
+  })
+  .catch(()=>{
+    alert("通信失敗");
+  })
+  .finally(()=>{
+    btn.disabled = false;
+    btn.innerText = "送信";
+  });
 }
