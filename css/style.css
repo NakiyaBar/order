@@ -1,12 +1,12 @@
 /**
  * NAKIYA BAR オーダーシート用 スタイルシート
- * レイアウト調整・最終版
+ * 見やすさ改善版（白ボタン・色付き枠線）
  */
 
 body {
     font-family: 'Helvetica Neue', Arial, sans-serif;
     padding: 15px;
-    background-image: url("../images/background.png");
+    background-image: url("../images/background.png"); /* 背景画像はそのまま */
     background-color: #0c1c38;
     background-size: cover;
     background-attachment: fixed;
@@ -17,122 +17,159 @@ body {
     display: none !important;
 }
 
-/* --- 卓選択エリア：幅を半分に調整 --- */
-.top {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background-color: rgba(255, 255, 255, 0.95);
-    padding: 15px;
-    border-radius: 12px;
-    margin-bottom: 20px;
-}
-
-#table {
-    /* flex: 1; を削除して width を指定します */
-    width: 50%;        /* 横幅を50%（半分）に設定 */
-    padding: 10px;
-    font-size: 18px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    background-color: white;
-}
-
-#tableLabel {
-    color: #333;
-    font-weight: bold;
-    font-size: 14px;
-    white-space: nowrap; /* ラベルが改行されないように */
-}
-
-/* --- タイトル --- */
+/* --- コンテナとタイトル --- */
 h3 {
     margin: 15px 0 10px;
-    color: #4cafef;
+    color: #4cafef; /* タイトルは青系で見やすく */
     font-size: 18px;
+    font-weight: bold;
     border-bottom: 2px solid #4cafef;
     padding-bottom: 5px;
     display: inline-block;
 }
 
-/* --- メニューボタン配置（2個ずつ並び） --- */
-.mode-buttons, .grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+.top {
+    background-color: rgba(255, 255, 255, 0.95); /* 卓選択は白背景で確実に読む */
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
     gap: 12px;
+}
+
+#tableLabel {
+    color: #333; /* 選択中の文字は黒 */
+    font-weight: bold;
+}
+
+/* --- モード切り替えボタン（2個ずつ） --- */
+.mode-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2個ずつ並べる */
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+/* --- 各種メニューグリッド（2個ずつ） --- */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* メニューボタンも2個ずつ並べる */
+    gap: 15px; /* ボタン間の余白 */
     margin-bottom: 20px;
 }
 
-/* --- メニューカード（白背景・黒文字） --- */
+/* --- 【最重要】ボタン（カード）の基本スタイル（白背景・濃い文字） --- */
 .card {
-    background-color: #ffffff !important;
-    color: #000000 !important;
-    border: 2px solid #ddd;
+    background-color: #ffffff !important; /* 背景は白 */
+    color: #333333 !important; /* 文字は濃いグレー（重要） */
+    border: 3px solid #ddd; /* デフォルトの薄い枠線 */
     padding: 15px 10px;
     text-align: center;
     border-radius: 10px;
+    transition: 0.2s;
     cursor: pointer;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2); /* 少し立体感 */
     font-weight: bold;
     height: 100%;
     box-sizing: border-box;
 }
 
-input[type="radio"] {
-    display: none;
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 10px rgba(0,0,0,0.3);
 }
 
+/* --- ラジオボタンの制御と選択エフェクト --- */
+input[type="radio"] {
+    display: none; /* ラジオボタン本体は隠す */
+}
+
+/* 選択されたボタン（白背景のまま、枠を青く） */
 input:checked + .card {
     border-color: #4cafef;
-    background-color: #e3f2fd !important;
-    box-shadow: 0 0 10px rgba(76, 175, 239, 0.5);
+    box-shadow: 0 0 15px rgba(76, 175, 239, 0.7); /* 青い発光効果 */
+    transform: translateY(-3px);
 }
 
-/* --- 下部アクションボタン：縦並び（横幅いっぱい） --- */
-.action-buttons {
-    display: block !important; /* 横並び設定を完全に無効化 */
-    margin-top: 20px;
+/* --- リキュールの色分け（★画像のように枠線を色付け） --- */
+.card.red {
+    border-color: #ffcccc; /* 紅：薄いピンク */
 }
 
-#addBtn, #orderCheckBtn {
-    display: block;
-    width: 100%;       /* 横幅いっぱい */
-    margin: 10px 0;    /* ボタン同士の隙間 */
+.card.green {
+    border-color: #ccffcc; /* 翠：薄いグリーン */
+}
+
+.card.white {
+    border-color: #ffffff; /* 累：白 */
+}
+
+.card.blue {
+    border-color: #ccccff; /* 蒼：薄いブルー */
+}
+
+.card.black {
+    border-color: #cccccc; /* 黎：薄いグレー */
+}
+
+/* --- 下部アクションボタン（2個ずつ） --- */
+#menuArea > #addBtn, #menuArea > #orderCheckBtn {
+    width: auto;
+    width: calc(50% - 12px); /* 2個並べる計算 */
+    display: inline-block;
+}
+
+#menuArea > #orderCheckBtn {
+    margin-left: 10px;
+}
+
+/* ボタンの基本スタイル */
+button {
+    font-size: 16px;
     padding: 15px;
-    font-size: 18px;
-    font-weight: bold;
     border-radius: 12px;
     border: none;
     cursor: pointer;
+    transition: 0.2s;
+    font-weight: bold;
+    width: 100%;
     box-shadow: 0 4px 6px rgba(0,0,0,0.2);
 }
 
-/* ボタンの色設定 */
-button#addBtn { background-color: #4cafef; color: white; }
-button#orderCheckBtn { background-color: #f5f5f5; color: #333; }
-button#originalBtn, button#foodBtn { background-color: #f5f5f5; color: #333; }
+/* 白系のボタン */
+button#foodBtn, button#addBtn, button#orderCheckBtn {
+    background-color: #f5f5f5;
+    color: #333;
+}
 
-button.active {
+/* アクティブ（選択中）のボタン（青） */
+button.active, button#addBtn[style*="background:#4cafef"] {
     background-color: #4cafef !important;
     color: white !important;
 }
 
-/* --- モーダル --- */
+/* --- モーダル（注文確認） --- */
 .modal {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0,0,0,0.7);
-    display: none;
-    z-index: 1000;
+    background-color: rgba(0,0,0,0.7);
 }
 
 .modal-content {
-    background: white;
-    margin: 15% auto;
-    padding: 20px;
-    width: 85%;
-    max-width: 400px;
+    background-color: #fff;
+    color: #333;
     border-radius: 15px;
+    width: 90%;
+    max-width: 450px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+}
+
+.modal-content h3 {
+    border-color: #333;
+    color: #333;
+}
+
+.cart-item {
+    border-bottom: 1px solid #ddd;
     color: #333;
 }
