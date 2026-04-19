@@ -199,15 +199,16 @@ button.active {
     padding: 10px;
 }
 
-/* ラジオボタンがチェックされた直後の .card のスタイル */
-input:checked + .card {
+/* ラジオボタンがチェックされた時のカードの見た目（白ボタン共通） */
+input[type="radio"]:checked + .card {
     border: 3px solid #4cafef !important; /* 太い青枠 */
-    background-color: #e3f2fd !important; /* 薄い青背景 */
-    box-shadow: 0 0 15px rgba(76, 175, 239, 0.5); /* 青い光 */
-    transform: scale(1.02); /* ほんの少しだけ大きくして強調 */
+    background-color: #e3f2fd !important; /* ほんのり青背景 */
+    box-shadow: 0 0 10px rgba(76, 175, 239, 0.5);
+    transform: scale(1.02); /* 少し浮かせる */
 }
 
-/* 「あり」「なし」などの白いカード専用の調整 */
+/* サワーの「あり」「なし」などの枠線を少し見やすく */
 .card.white {
-    border: 1px solid #ccc; /* 通常時は薄いグレーの枠線 */
+    border: 1px solid #ddd;
+    background-color: #fff;
 }
