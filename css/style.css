@@ -212,3 +212,18 @@ input[type="radio"]:checked + .card {
     border: 1px solid #ddd;
     background-color: #fff;
 }
+
+/* 選択時の強調（青枠） */
+input[type="radio"]:checked + .card {
+    border: 3px solid #4cafef !important;
+    background-color: #e3f2fd !important;
+    box-shadow: 0 0 10px rgba(76, 175, 239, 0.5);
+    transform: scale(1.02);
+}
+
+/* 通常の白ボタンを見やすく */
+.card {
+    border: 1px solid #ccc;
+    background-color: #fff;
+    transition: all 0.2s;
+}
