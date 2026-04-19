@@ -107,12 +107,10 @@ input:checked + .card {
 
 /* --- リキュールの色分け（★画像のように枠線を色付け） --- */
 .card.red {
-    background:#ffe5e5;
     border-color:#ffffff;
 }
 
 .card.green {
-    background:#e5ffe5;
     border-color:#7edc7e;
 }
 
@@ -121,12 +119,10 @@ input:checked + .card {
 }
 
 .card.blue {
-    background:#e5f0ff;
     border-color:#7fb3ff;
 }
 
 .card.black {
-    background:#eeeeee;
     border-color:#999;
 }
 
