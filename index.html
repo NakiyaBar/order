@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html>
-<head title="Nakiya Bar Order">
+<html lang="ja">
+<head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nakiya Bar Order</title>
   <link rel="stylesheet" href="css/style.css">
-  <script src="js/script.js">
-  </script>
+  <script src="js/script.js"></script>
 </head>
 <body>
 
@@ -16,55 +16,44 @@
 </div>
 
 <div id="menuArea" class="hidden">
+  <div class="mode-buttons">
+    <button id="originalBtn" onclick="toggleOriginal()">オリジナルカクテル</button>
+    <button id="foodBtn" onclick="toggleFood()">フード</button>
+  </div>
 
-<!-- 🔥ここ追加 -->
-<div class="mode-buttons">
-  <button id="originalBtn" onclick="toggleOriginal()">オリジナルカクテル</button>
-  <button id="foodBtn" onclick="toggleFood()">フード</button>
-</div>
+  <div id="normalArea">
+    <h3>リキュール①</h3>
+    <div id="l1Area" class="grid"></div>
 
-<!-- 通常 -->
-<div id="normalArea">
+    <h3>リキュール②</h3>
+    <div id="l2Area" class="grid"></div>
 
-  
-<!-- 通常 -->
-<div id="normalArea">
-<h3>リキュール①</h3>
-<div id="l1Area" class="grid"></div>
+    <h3>サワー</h3>
+    <div class="grid sour-area">
+      <label><input type="radio" name="sour" value="あり"><div class="card white">あり</div></label>
+      <label><input type="radio" name="sour" value="なし"><div class="card white">なし</div></label>
+    </div>
+  </div>
 
-<h3>リキュール②</h3>
-<div id="l2Area" class="grid"></div>
+  <div id="originalArea" class="hidden">
+    <h3>オリジナルカクテル</h3>
+    <div id="originalList" class="grid"></div>
+  </div>
 
-<h3>サワー</h3>
-<div class="grid sour-area">
-<label><input type="radio" name="sour" value="あり"><div class="card white">あり</div></label>
-<label><input type="radio" name="sour" value="なし"><div class="card white">なし</div></label>
-</div>
-</div>
-
-<!-- オリジナル -->
-<div id="originalArea" class="hidden">
-<h3>オリジナルカクテル</h3>
-<div id="originalList"></div>
-</div>
-
-<!-- 🔥フード -->
-<div id="foodArea" class="hidden">
-  <h3>フード</h3>
-  <div id="foodList"></div>
+  <div id="foodArea" class="hidden">
+    <h3>フード</h3>
+    <div id="foodList" class="grid"></div>
+  </div>
+    
+  <button id="addBtn" onclick="addToCart()" style="background:#4cafef; color:white;">カートに追加</button>
+  <button id="orderCheckBtn" onclick="openCart()">注文確認</button>
 </div>
   
-<button id="addBtn" onclick="addToCart()">追加</button>
-<button id="orderCheckBtn" onclick="openCart()">注文確認</button>
-
-</div>
-  
-<!-- モーダル -->
 <div id="cartModal" class="modal">
   <div class="modal-content">
     <h3>注文確認</h3>
     <div id="cartList"></div>
-    <button id="sendBtn" onclick="sendOrder()">送信</button>
+    <button id="sendBtn" onclick="sendOrder()" style="background:#4cafef; color:white;">送信</button>
     <button id="closeBtn" onclick="closeCart()">閉じる</button>
   </div>
 </div>
