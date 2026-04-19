@@ -15,16 +15,20 @@ window.addEventListener('DOMContentLoaded', () => {
             const tableSelect = document.getElementById("table");
             if (tableSelect) {
                 tableSelect.innerHTML = '<option value="">選択</option>';
-                data.table.slice(1).forEach(t => {
-                    tableSelect.innerHTML += `<option>${t[0]}</option>`;
-                });
+                // 卓：1行目を飛ばして2行目から反映
+                if (data.table) {
+                    data.table.slice(1).forEach(t => {
+                        tableSelect.innerHTML += `<option>${t[0]}</option>`;
+                    });
+                }
             }
 
-            // 各メニューの描画（ここでの .slice(1) を整理）
-            render("l1Area", "l1", data.liqueur.slice(1));
-            render("l2Area", "l2", data.liqueur.slice(1));
-            renderOriginal(data.original.slice(1));
-            renderFood(data.food); // ここでは slice せず関数に渡す
+            // 各エリアの描画（GASから届いたデータをそのまま渡す）
+            render("l1Area", "l1", data.liqueur);
+            render("l2Area", "l2", data.liqueur);
+            renderOriginal(data.original);
+            renderFood(data.food);
+            
             checkOrder();
         })
         .catch(err => console.error("データ取得エラー:", err));
@@ -43,10 +47,11 @@ function getColorClass(name) {
     return colors[name] || "";
 }
 
+// 汎用描画関数：2行目（index 1）から表示
 function render(id, name, data) {
     const el = document.getElementById(id);
-    if (!el) return;
-    el.innerHTML = data.map(item => {
+    if (!el || !data) return;
+    el.innerHTML = data.slice(1).map(item => {
         const color = getColorClass(item[0]);
         return `
         <label>
@@ -59,10 +64,11 @@ function render(id, name, data) {
     }).join("");
 }
 
+// オリジナルカクテル：2行目（index 1）から表示
 function renderOriginal(data) {
     const el = document.getElementById("originalList");
-    if (!el) return;
-    el.innerHTML = data.map(item => `
+    if (!el || !data) return;
+    el.innerHTML = data.slice(1).map(item => `
         <label>
           <input type="radio" name="original" value="${item[0]}">
           <div class="card">
@@ -72,13 +78,13 @@ function renderOriginal(data) {
         </label>`).join("");
 }
 
-// フード描画：A2から表示するように修正
+// フード：2行目（index 1）から表示
 function renderFood(data) {
     const el = document.getElementById("foodList");
     if (!el || !data) return;
     
-    // 1行目(A1)を飛ばして、2行目(A2)から中身があるものだけ表示
-    const foodItems = data.slice(1).filter(item => item[0] && item[0].trim() !== "");
+    // slice(1)で1行目の「フード名」を飛ばし、空行を除外
+    const foodItems = data.slice(1).filter(item => item[0] && item[0].toString().trim() !== "");
 
     el.innerHTML = foodItems.map(item => `
         <label>
@@ -108,8 +114,8 @@ function updateVisibility() {
     
     document.getElementById("originalBtn").classList.toggle("active", isOriginal);
     document.getElementById("foodBtn").classList.toggle("active", isFood);
-    
-    // モード切替時に選択をリセット
+
+    // 切り替え時にラジオボタンの選択をリセット（青枠が残らないようにする）
     document.querySelectorAll('input[type="radio"]').forEach(i => i.checked = false);
 }
 
@@ -156,7 +162,7 @@ function openCart() {
       <span class="drink-name">${c.name}</span>
       <div class="qty-area">
         <button class="qty-btn" onclick="changeQty(${i},-1)">−</button>
-        <span class="qty-num">${c.qty}</span>
+        <span class="qty-num" style="min-width:24px; text-align:center;">${c.qty}</span>
         <button class="qty-btn" onclick="changeQty(${i},1)">＋</button>
       </div>
     </div>`).join("");
@@ -168,15 +174,15 @@ function changeQty(i, d) { cart[i].qty += d; if (cart[i].qty <= 0) cart.splice(i
 function removeItem(i) { cart.splice(i, 1); openCart(); checkOrder(); }
 
 function sendOrder() {
-    const table = document.getElementById("table");
+    const table = document.getElementById("table").value;
     const btn = document.getElementById("sendBtn");
-    if (!table.value) return alert("卓を選択してください");
+    if (!table) return alert("卓を選択してください");
     btn.disabled = true;
     btn.innerText = "送信中...";
 
     fetch(API_URL, {
         method: "POST",
-        body: JSON.stringify({ table: table.value, items: cart })
+        body: JSON.stringify({ table, items: cart })
     })
     .then(() => {
         alert("送信完了しました");
@@ -186,5 +192,9 @@ function sendOrder() {
         btn.innerText = "送信";
         btn.disabled = false;
     })
-    .catch(() => { alert("送信に失敗しました"); btn.disabled = false; });
+    .catch(() => {
+        alert("送信に失敗しました");
+        btn.disabled = false;
+        btn.innerText = "送信";
+    });
 }
