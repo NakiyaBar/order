@@ -1,5 +1,6 @@
 /**
  * NAKIYA BAR オーダーシート用メインスクリプト
+ * 統合修正版（フード・オリジナル表示切り替え & 見出しスキップ対応）
  */
 
 const API_URL = "https://script.google.com/macros/s/AKfycbx3Z88Rj0Qo4HUSKVA-Yc5LHhHiMTYHO54Q-9n6NbXqGAdOYx9HOAHGaIKriWfBd8vN/exec";
@@ -54,12 +55,12 @@ function render(id, name, data) {
     }).join("");
 }
 
-// オリジナルカクテルのボタン描画（修正版）
+// オリジナルカクテルのボタン描画（修正版：見出しスキップ）
 function renderOriginal(data) {
     const el = document.getElementById("originalList");
     if (!el) return;
     
-    // slice(1) で見出しを飛ばす
+    // スプレッドシートの1行目（見出し）を飛ばす
     const originalItems = data.slice(1);
 
     el.innerHTML = originalItems.map(item => `
@@ -72,12 +73,12 @@ function renderOriginal(data) {
         </label>`).join("");
 }
 
-// フードのボタン描画（修正版）
+// フードのボタン描画（修正版：見出しスキップ）
 function renderFood(data) {
     const el = document.getElementById("foodList");
     if (!el) return;
     
-    // slice(1) を追加して、スプレッドシートの1行目（見出し）を無視する
+    // スプレッドシートの1行目（見出し）を飛ばす
     const foodItems = data.slice(1); 
 
     el.innerHTML = foodItems.map(item => `
@@ -103,12 +104,29 @@ function toggleFood() {
     updateVisibility();
 }
 
-// 表示の更新（通常・オリジナル・フードの切り替え）
+// 表示の更新（通常・オリジナル・フードの切り替えを確実に実行）
 function updateVisibility() {
-    document.getElementById("normalArea").classList.toggle("hidden", isOriginal || isFood);
-    document.getElementById("originalArea").classList.toggle("hidden", !isOriginal);
-    document.getElementById("foodArea").classList.toggle("hidden", !isFood);
+    const normalArea = document.getElementById("normalArea");
+    const originalArea = document.getElementById("originalArea");
+    const foodArea = document.getElementById("foodArea");
+
+    if (!normalArea || !originalArea || !foodArea) return;
+
+    // 一旦すべて隠す
+    normalArea.classList.add("hidden");
+    originalArea.classList.add("hidden");
+    foodArea.classList.add("hidden");
+
+    // 現在のフラグに合わせて1つだけ表示
+    if (isOriginal) {
+        originalArea.classList.remove("hidden");
+    } else if (isFood) {
+        foodArea.classList.remove("hidden");
+    } else {
+        normalArea.classList.remove("hidden");
+    }
     
+    // ボタンの「アクティブ（点灯）」状態を更新
     document.getElementById("originalBtn").classList.toggle("active", isOriginal);
     document.getElementById("foodBtn").classList.toggle("active", isFood);
 }
@@ -146,11 +164,17 @@ function addToCart() {
 }
 
 function checkOrder() {
-    document.getElementById("orderCheckBtn").disabled = (cart.length === 0);
+    // 注文が空のときは「注文確認」ボタンを押せなくする
+    const orderBtn = document.getElementById("orderCheckBtn");
+    if (orderBtn) {
+        orderBtn.disabled = (cart.length === 0);
+    }
 }
 
 function openCart() {
     const list = document.getElementById("cartList");
+    if (!list) return;
+
     list.innerHTML = cart.map((c, i) => `
     <div class="cart-item">
       <span class="drink-name">${c.name}</span>
@@ -164,12 +188,27 @@ function openCart() {
     document.getElementById("cartModal").style.display = "block";
 }
 
-function closeCart() { document.getElementById("cartModal").style.display = "none"; }
-function changeQty(i, d) { cart[i].qty += d; if (cart[i].qty <= 0) cart.splice(i, 1); openCart(); checkOrder(); }
-function removeItem(i) { cart.splice(i, 1); openCart(); checkOrder(); }
+function closeCart() { 
+    document.getElementById("cartModal").style.display = "none"; 
+}
+
+function changeQty(i, d) { 
+    cart[i].qty += d; 
+    if (cart[i].qty <= 0) cart.splice(i, 1); 
+    openCart(); 
+    checkOrder(); 
+}
+
+function removeItem(i) { 
+    cart.splice(i, 1); 
+    openCart(); 
+    checkOrder(); 
+}
 
 function sendOrder() {
     const table = document.getElementById("table").value;
+    if (!table) return alert("卓を選択してください");
+
     fetch(API_URL, {
         method: "POST",
         body: JSON.stringify({ table, items: cart })
@@ -178,5 +217,8 @@ function sendOrder() {
         cart = [];
         closeCart();
         checkOrder();
+    }).catch(err => {
+        console.error("送信エラー:", err);
+        alert("送信に失敗しました");
     });
 }
