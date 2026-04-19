@@ -1,6 +1,6 @@
 /**
  * NAKIYA BAR オーダーシート用 スタイルシート
- * レイアウト調整版
+ * レイアウト調整・最終版
  */
 
 body {
@@ -17,7 +17,7 @@ body {
     display: none !important;
 }
 
-/* --- 卓選択エリア：幅を広げる設定 --- */
+/* --- 卓選択エリア：幅を最大限に広げる --- */
 .top {
     display: flex;
     align-items: center;
@@ -25,30 +25,12 @@ body {
 }
 
 #table {
-    flex: 1;           /* ★ここを追加：右側の余白をすべて使って幅を広げます */
+    flex: 1;           /* これで右側の余白を埋めます */
     min-width: 160px;
     padding: 8px;
     font-size: 16px;
     border-radius: 5px;
     border: 1px solid #ccc;
-}
-
-/* --- 下部ボタン：元の縦並びに戻す設定 --- */
-#addBtn, #orderCheckBtn {
-    display: block;    /* 縦に並べる */
-    width: 100%;       /* 横幅いっぱいに広げる */
-    margin: 10px 0;    /* 上下に余白を作る */
-    padding: 15px;
-    font-size: 18px;
-    font-weight: bold;
-    border-radius: 10px;
-    border: none;
-    cursor: pointer;
-}
-
-/* もし action-buttons という囲みを作っていた場合は、以下の設定で無効化できます */
-.action-buttons {
-    display: block !important; 
 }
 
 #tableLabel {
@@ -67,15 +49,15 @@ h3 {
     display: inline-block;
 }
 
-/* --- ボタン配置（すべて2個ずつ並び） --- */
+/* --- メニューボタン配置（2個ずつ並び） --- */
 .mode-buttons, .grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr); /* 2列固定 */
+    grid-template-columns: repeat(2, 1fr);
     gap: 12px;
     margin-bottom: 20px;
 }
 
-/* --- メニューボタン（白背景・黒文字） --- */
+/* --- メニューカード（白背景・黒文字） --- */
 .card {
     background-color: #ffffff !important;
     color: #000000 !important;
@@ -96,33 +78,33 @@ input[type="radio"] {
 
 input:checked + .card {
     border-color: #4cafef;
-    background-color: #e3f2fd !important; /* 選択時は少し青みがかった白に */
+    background-color: #e3f2fd !important;
     box-shadow: 0 0 10px rgba(76, 175, 239, 0.5);
 }
 
-/* --- 下部アクションボタン（横並びに戻しました） --- */
+/* --- 下部アクションボタン：縦並び（横幅いっぱい） --- */
 .action-buttons {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    display: block !important; /* 横並び設定を完全に無効化 */
     margin-top: 20px;
 }
 
-button {
-    font-size: 16px;
+#addBtn, #orderCheckBtn {
+    display: block;
+    width: 100%;       /* 横幅いっぱい */
+    margin: 10px 0;    /* ボタン同士の隙間 */
     padding: 15px;
+    font-size: 18px;
+    font-weight: bold;
     border-radius: 12px;
     border: none;
     cursor: pointer;
-    font-weight: bold;
-    width: 100%;
     box-shadow: 0 4px 6px rgba(0,0,0,0.2);
 }
 
-/* 各ボタンの色 */
-button#originalBtn, button#foodBtn { background-color: #f5f5f5; color: #333; }
-button#addBtn { background-color: #4cafef; color: white; } /* 追加ボタンは目立つ色に */
+/* ボタンの色設定 */
+button#addBtn { background-color: #4cafef; color: white; }
 button#orderCheckBtn { background-color: #f5f5f5; color: #333; }
+button#originalBtn, button#foodBtn { background-color: #f5f5f5; color: #333; }
 
 button.active {
     background-color: #4cafef !important;
@@ -137,4 +119,14 @@ button.active {
     background: rgba(0,0,0,0.7);
     display: none;
     z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    margin: 15% auto;
+    padding: 20px;
+    width: 85%;
+    max-width: 400px;
+    border-radius: 15px;
+    color: #333;
 }
