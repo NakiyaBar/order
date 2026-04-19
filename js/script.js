@@ -2,342 +2,172 @@
  * NAKIYA BAR オーダーシート用メインスクリプト
  */
 
-/* GoogleスプレットシートのマクロURL */
 const API_URL = "https://script.google.com/macros/s/AKfycbx3Z88Rj0Qo4HUSKVA-Yc5LHhHiMTYHO54Q-9n6NbXqGAdOYx9HOAHGaIKriWfBd8vN/exec";
 
-/* カート（注文済カクテルAry） */
-let cart= [];
+let cart = [];
+let isOriginal = false;
+let isFood = false;
 
-/* オリジナルカクテル用フラグ */
-let isOriginal= false;
-let isFood = false; // ←追加
+// 初期化：ページ読み込み完了時に実行
+window.addEventListener('DOMContentLoaded', () => {
+    fetch(API_URL)
+        .then(r => r.json())
+        .then(data => {
+            // 卓リストの反映
+            const tableSelect = document.getElementById("table");
+            tableSelect.innerHTML = '<option value="">選択</option>';
+            data.table.forEach(t => {
+                tableSelect.innerHTML += `<option>${t[0]}</option>`;
+            });
 
-/**
- * 初期化処理
- * TODO このままだとこのファイルが読まれたときに必ず動くので、
- *      初期化処理は関数化して、HTMLファイル側で呼び出した方がよさそう。
- */
-fetch(API_URL)
-    .then(r=>r.json())
-    .then(data=>{
-        table.innerHTML='<option value="">選択</option>';
-        data.table.forEach(t=>{
-            table.innerHTML+=`<option>${t[0]}</option>`;
-        });
+            // 各メニューの描画
+            render("l1Area", "l1", data.liqueur);
+            render("l2Area", "l2", data.liqueur);
+            renderOriginal(data.original);
+            renderFood(data.food);
+            checkOrder();
+        })
+        .catch(err => console.error("データ取得エラー:", err));
+});
 
-        render("l1Area","l1",data.liqueur);
-        render("l2Area","l2",data.liqueur);
-        renderOriginal(data.original);
-        renderFood(data.food); // ←追加
-        checkOrder();
-    });
-
-
-/**
- * 選択した卓の値を保持。
- */
-function onTableSelect(){
-    const t = table.value;
-    tableLabel.innerText = t?`選択中：${t}`:"";
-    menuArea.classList.toggle("hidden",!t);
+// 卓選択時の表示切り替え
+function onTableSelect() {
+    const t = document.getElementById("table").value;
+    document.getElementById("tableLabel").innerText = t ? `選択中：${t}` : "";
+    document.getElementById("menuArea").classList.toggle("hidden", !t);
 }
 
-/**
- *  リキュールの色を元に適したクラス名を返却。
- *  該当するクラスが存在しない場合、空文字を返却。
- *
- *  @param  name リキュール名
- *  @return クラス名
- */
-function getColorClass(name){
-    if(name==="紅") return "red";
-    if(name==="翠") return "green";
-    if(name==="累") return "white";
-    if(name==="蒼") return "blue";
-    if(name==="黎") return "black";
-    return "";
+// リキュールのボタン描画
+function render(id, name, data) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.innerHTML = data.map(item => {
+        const color = (item[0] === "紅") ? "red" : (item[0] === "翠") ? "green" : (item[0] === "累") ? "white" : (item[0] === "蒼") ? "blue" : (item[0] === "黎") ? "black" : "";
+        return `
+        <label>
+          <input type="radio" name="${name}" value="${item[0]}">
+          <div class="card ${color}">
+            <div>${item[0]}</div>
+            <div style="font-size:10px;">${item[1] || ''}</div>
+          </div>
+        </label>`;
+    }).join("");
 }
 
-/**
- * リキュールの色に応じて、ボタンのHTMLを挿入
- *
- * @param   id      挿入先のタグid
- * @param   name    ボタンに指定する値
- * @param   data    スプレットシートから受け取ったデータ
- */
-function render(id,name,data){
-    const el=document.getElementById(id);
-    el.innerHTML="";
-
-    // TODO 重くなる原因なので、interHTMLやめたい。いい方法見つかるまではそのままで
-    data.forEach(item=>{
-        const color= getColorClass(item[0]);
-
-        el.innerHTML+=`
-    <label>
-      <input type="radio" name="${name}" value="${item[0]}">
-      <div class="card ${color}">
-        <div>${item[0]}</div>
-        <div>${item[1]}</div>
-      </div>
-    </label>`;
-    });
+// オリジナルカクテルのボタン描画
+function renderOriginal(data) {
+    const el = document.getElementById("originalList");
+    if (!el) return;
+    el.innerHTML = data.map(item => `
+        <label>
+          <input type="radio" name="original" value="${item[0]}">
+          <div class="card">
+            <div>${item[0]}</div>
+            <div style="font-size:10px;">${item[1] || ''}</div>
+          </div>
+        </label>`).join("");
 }
 
-/**
- * オリジナルカクテル用のボタンHTMLを挿入
- *
- * @param   data    スプレットシートから受け取ったデータ
- */
-function renderOriginal(data){
-    originalList.innerHTML="";
-
-    // TODO 重くなる原因なので、interHTMLやめたい。いい方法見つかるまではそのままで
-    data.forEach(item=>{
-        originalList.innerHTML+=`
-    <label>
-      <input type="radio" name="original" value="${item[0]}" onchange="selectOriginalEffect(this)">
-      <div class="card">
-        <div>${item[0]}</div>
-        <div>${item[1]}</div>
-      </div>
-    </label>`;
-    });
+// フードのボタン描画
+function renderFood(data) {
+    const el = document.getElementById("foodList");
+    if (!el) return;
+    el.innerHTML = data.map(item => `
+        <label>
+          <input type="radio" name="food" value="${item[0]}">
+          <div class="card food">
+            <div>${item[0]}</div>
+          </div>
+        </label>`).join("");
 }
 
-/**
- * 選択したボタンにエフェクト付与（選択したという色を着ける）処理
- *
- * @param   el  選択中したボタン情報
- */
-function selectOriginalEffect(el){
-    el.nextElementSibling.style.boxShadow="0 0 10px #4cafef";
+// モード切り替え：オリジナルカクテル
+function toggleOriginal() {
+    isOriginal = !isOriginal;
+    if (isOriginal) isFood = false; // フードをオフにする
+    updateVisibility();
 }
 
-/**
- *  オリジナルカクテル用のメニュー表示・非表示切替処理
- */
-function toggleOriginal(){
-    isOriginal=!isOriginal;
-
-    // 通常カクテルメニューエリアの表示・非表示切替
-    normalArea.classList.toggle("hidden",isOriginal);
-
-    // オリジナルカクテルメニューエリアの表示・非表示切替
-    originalArea.classList.toggle("hidden",!isOriginal);
-
-    // オリジナルカクテルボタンの有効・無効切替
-    originalBtn.classList.toggle("active",isOriginal);
-}
-
-function toggleFood(){
+// モード切り替え：フード
+function toggleFood() {
     isFood = !isFood;
-
-    // 通常カクテル非表示
-    normalArea.classList.toggle("hidden", isFood);
-
-    // フード表示
-    foodArea.classList.toggle("hidden", !isFood);
-
-    // ボタン状態
-    foodBtn.classList.toggle("active", isFood);
-
-    // 🔥オリジナル解除（共存防止）
-    if(isFood && isOriginal){
-        toggleOriginal();
-    }
+    if (isFood) isOriginal = false; // オリジナルをオフにする
+    updateVisibility();
 }
 
-function renderFood(data){
-    foodList.innerHTML="";
-
-    data.forEach(item=>{
-        foodList.innerHTML+=`
-    <label>
-      <input type="radio" name="food" value="${item[0]}">
-      <div class="card food">
-        <div>${item[0]}</div>
-        <div>${item[1]}</div>
-      </div>
-    </label>`;
-    });
+// 表示の更新（通常・オリジナル・フードの切り替え）
+function updateVisibility() {
+    document.getElementById("normalArea").classList.toggle("hidden", isOriginal || isFood);
+    document.getElementById("originalArea").classList.toggle("hidden", !isOriginal);
+    document.getElementById("foodArea").classList.toggle("hidden", !isFood);
+    
+    document.getElementById("originalBtn").classList.toggle("active", isOriginal);
+    document.getElementById("foodBtn").classList.toggle("active", isFood);
 }
 
-/**
- * 各種ボタンの選択状態から、メニューの値を返却
- *
- * @param   n   ボタンの選択状態を返却
- * @return　メニューの選択肢を返却
- */
-function getSelected(n){
-    const el=document.querySelector(`input[name="${n}"]:checked`);
-    return el?el.value:null;
+// 選択されているラジオボタンの値を取得
+function getSelected(n) {
+    const el = document.querySelector(`input[name="${n}"]:checked`);
+    return el ? el.value : null;
 }
 
-/**
- *  カート内のオーダー状況に応じ、注文確認ボタンを有効・無効を切替
- */
-function checkOrder(){
-    if (cart.length === 0) {
-        // カート内にオーダーがない場合
-        // 注文確認ボタンを無効化
-        document.getElementById("orderCheckBtn").setAttribute("disabled", true);
-    } else {
-        // カート内にオーダーがある場合
-        // 注文確認ボタンを有効化
-        document.getElementById("orderCheckBtn").removeAttribute("disabled");
-    }
-}
-
-/**
- * カートへ選択したメニューを追加
- */
-function addToCart(){
-    // 初期化
-    let name="";
-
+// 注文追加処理
+function addToCart() {
+    let name = "";
     if (isOriginal) {
-        // オリジナルカクテルメニューの場合
-        // オリジナルカクテルメニューの選択状態を取得
-        const o=　getSelected("original");
-
-        // メニュー選択チェック処理
-        if(!o) {
-            return alert("オリジナルカクテルを選択してください！！");
-        }
-
-        name = o;
-    } else if (isFood) { // ←ここ追加
+        const o = getSelected("original");
+        if (!o) return alert("カクテルを選択してください");
+        name = "【オリ】" + o;
+    } else if (isFood) {
         const f = getSelected("food");
-        if(!f){
-            return alert("フードを選択してください！！");
-        }
-        name = f;
-        
+        if (!f) return alert("フードを選択してください");
+        name = "【フード】" + f;
     } else {
-        // 通常カクテルメニューの場合
-        // リキュール１メニューの選択状態を取得
-        const l1= getSelected("l1");
-        // リキュール２メニューの選択状態を取得
-        const l2= getSelected("l2");
-        // サワーのありなしメニューの選択状態を取得
-        const s= getSelected("sour");
-
-        // メニュー選択チェック処理
-        if(!l1||!l2||!s){
-            return alert("リキュールとサワーのありなしを選択してください！！");
-        }
-
-        // サワーの選択状態で、サワーかカクテルかをチェック
-        const type = (s==="あり") ? "サワー" : "カクテル";
-
-        name=`${l1}${l2}${type}`;
+        const l1 = getSelected("l1"), l2 = getSelected("l2"), s = getSelected("sour");
+        if (!l1 || !l2 || !s) return alert("リキュールとサワーを選択してください");
+        name = `${l1}${l2}${s === "あり" ? "サワー" : "カクテル"}`;
     }
 
-    const ex = cart.find(i=>i.name===name);
-    ex?ex.qty++:cart.push({name,qty:1});
+    const ex = cart.find(i => i.name === name);
+    ex ? ex.qty++ : cart.push({ name, qty: 1 });
 
-    // メニューボタン選択状態をリセット
-    // TODO forEachを使うか要確認。これだとただ重くなるだけな気がしてる。
-    // 🔥ここも少し修正（フード追加）
-    document.querySelectorAll(
-      'input[name="l1"],input[name="l2"],input[name="sour"],input[name="original"],input[name="food"]'
-    ).forEach(i=>i.checked=false);
-
-
-    // 🔥ここ重要
-    // TODO 上のforEachと合わせて修正。forEachを使用してるのが原因で、
-    //      消す必要のないオリジナルカクテルボタンの有効状態もリセットされてる。
-    if(isOriginal){
-        toggleOriginal();
-    }
-
-    // フード解除（追加）
-    if(isFood){
-        toggleFood();
-    }
-
-    // カートの内容チェック
+    // 選択リセット
+    document.querySelectorAll('input').forEach(i => i.checked = false);
     checkOrder();
+    alert("カートに追加しました");
 }
 
-/**
- * カートの内容をダイアログ表示する
- */
-function openCart(){
-    cartList.innerHTML = "";
+function checkOrder() {
+    document.getElementById("orderCheckBtn").disabled = (cart.length === 0);
+}
 
-    // TODO 重くなる原因なので、interHTMLやめたい。いい方法見つかるまではそのままで
-    cart.forEach((c,i)=>{
-        cartList.innerHTML+=`
+function openCart() {
+    const list = document.getElementById("cartList");
+    list.innerHTML = cart.map((c, i) => `
     <div class="cart-item">
-      <button class="delete-btn" onclick="removeItem(${i})">削除</button>
       <span class="drink-name">${c.name}</span>
       <div class="qty-area">
         <button class="qty-btn" onclick="changeQty(${i},-1)">−</button>
         ${c.qty}
         <button class="qty-btn" onclick="changeQty(${i},1)">＋</button>
+        <button class="delete-btn" onclick="removeItem(${i})">削除</button>
       </div>
-    </div>`;
-    });
-
-    cartModal.style.display = "block";
-
-    // TODO ここのチェック処理、実はいらないかも？
-    checkOrder();
+    </div>`).join("");
+    document.getElementById("cartModal").style.display = "block";
 }
 
-/**
- * 表示中のカート内容ダイアログを閉じる
- */
-function closeCart(){
-    cartModal.style.display = "none";
-}
+function closeCart() { document.getElementById("cartModal").style.display = "none"; }
+function changeQty(i, d) { cart[i].qty += d; if (cart[i].qty <= 0) cart.splice(i, 1); openCart(); checkOrder(); }
+function removeItem(i) { cart.splice(i, 1); openCart(); checkOrder(); }
 
-/**
- * カート内のメニュー個数変更処理
- *
- * @param   i   メニュー（上から何番目のメニューか）
- * @param   d   メニュー増減数（減らす場合はマイナスの値を渡す）
- */
-function changeQty(i,d){
-    // メニュー増減
-    cart[i].qty += d;
-
-    // 個数0以下になったら、メニュー項目ごと削除
-    if (cart[i].qty<=0) {
-        cart.splice(i,1);
-    }
-
-    // TODO カートの状態確認してからHTML組み直してそう。メニューが増えると処理が急激に重くなるかもしれない
-    openCart();
-}
-
-/**
- *　カート内のメニュー削除処理
- *
- * @param   i   メニュー（上から何番目のメニューか）
- */
-function removeItem(i){
-    // メニュー項目ごと削除
-    cart.splice(i,1);
-
-    // TODO カートの状態確認してからHTML組み直してそう。メニューが増えると処理が急激に重くなるかもしれない
-    openCart();
-}
-
-/**
- * オーダー送信。GoogleスプレットシートのマクロURLを呼び出す。
- */
-function sendOrder(){
-    fetch(API_URL,{
-        method:"POST",
-        body:JSON.stringify({
-            table:table.value,
-            items:cart
-        })
-    }).then(()=>{
-        cart=[];
+function sendOrder() {
+    const table = document.getElementById("table").value;
+    fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({ table, items: cart })
+    }).then(() => {
+        alert("送信しました");
+        cart = [];
         closeCart();
         checkOrder();
     });
