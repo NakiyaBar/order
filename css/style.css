@@ -28,20 +28,37 @@ h3 {
     display: inline-block;
 }
 
+/* --- 卓選択エリア：元の横並びに戻す --- */
 .top {
-    background-color: rgba(255, 255, 255, 0.95); /* 卓選択は白背景で確実に読む */
+    background-color: rgba(255, 255, 255, 0.95);
     padding: 15px;
     border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
+    display: flex;         /* 横並びにする */
+    align-items: center;   /* 上下中央揃え */
+    gap: 12px;             /* 項目間の隙間 */
+}
+
+/* 「卓」という見出しの余白をリセット */
+.top h3 {
+    margin: 0;
+    border: none;
+    padding: 0;
+}
+
+#table {
+    width: 50%;            /* 幅は半分を維持（お好みに合わせて調整してください） */
+    padding: 8px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
 }
 
 #tableLabel {
-    color: #333; /* 選択中の文字は黒 */
+    color: #333;
     font-weight: bold;
+    font-size: 14px;
+    white-space: nowrap;   /* 折り返しを防ぐ */
 }
 
 /* --- モード切り替えボタン（2個ずつ） --- */
