@@ -78,15 +78,17 @@ function renderOriginal(data) {
 // フードのボタン描画
 function renderFood(data) {
     const el = document.getElementById("foodList");
-    if (!el) return;
+    if (!el || !data) return;
     
-    // 見出しを飛ばし、データがある場合のみ描画
-    const foodItems = data.slice(1); 
+    // スプレッドシートの1行目（フード名）を除外してループ
+    // もしすでに除外されているデータが来てもエラーにならないよう filter を追加
+    const foodItems = data.filter(item => item[0] && item[0] !== "フード名"); 
 
     el.innerHTML = foodItems.map(item => `
         <label>
           <input type="radio" name="food" value="${item[0]}">
-          <div class="card"> <div>${item[0]}</div>
+          <div class="card">
+            <div>${item[0]}</div>
           </div>
         </label>`).join("");
 }
