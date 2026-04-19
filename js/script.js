@@ -1,6 +1,5 @@
 /**
  * NAKIYA BAR オーダーシート用メインスクリプト
- * ポップアップレイアウト微調整版
  */
 
 const API_URL = "https://script.google.com/macros/s/AKfycbx3Z88Rj0Qo4HUSKVA-Yc5LHhHiMTYHO54Q-9n6NbXqGAdOYx9HOAHGaIKriWfBd8vN/exec";
@@ -9,23 +8,23 @@ let cart = [];
 let isOriginal = false;
 let isFood = false;
 
-// 初期化：ページ読み込み完了時に実行
 window.addEventListener('DOMContentLoaded', () => {
     fetch(API_URL)
         .then(r => r.json())
         .then(data => {
-            // 卓リストの反映
             const tableSelect = document.getElementById("table");
-            if (tableSelect) {
+            if (tableSelect && data.table) {
                 tableSelect.innerHTML = '<option value="">選択</option>';
-                data.table.forEach(t => {
-                    tableSelect.innerHTML += `<option>${t[0]}</option>`;
+                // 卓：1行目が「卓名」なら slice(1)、最初からデータなら slice(0)
+                data.table.slice(1).forEach(t => {
+                    if(t[0]) tableSelect.innerHTML += `<option>${t[0]}</option>`;
                 });
             }
 
             // 各メニューの描画
-            render("l1Area", "l1", data.liqueur);
-            render("l2Area", "l2", data.liqueur);
+            // 画像を見る限り、1行目から中身があるので slice(0) または filter で空行を除去して表示
+            renderMenu("l1Area", "l1", data.liqueur);
+            renderMenu("l2Area", "l2", data.liqueur);
             renderOriginal(data.original);
             renderFood(data.food);
             checkOrder();
@@ -33,22 +32,29 @@ window.addEventListener('DOMContentLoaded', () => {
         .catch(err => console.error("データ取得エラー:", err));
 });
 
-// 卓選択時の表示切り替え
 function onTableSelect() {
     const t = document.getElementById("table").value;
     const label = document.getElementById("tableLabel");
     const menu = document.getElementById("menuArea");
-    
     if (label) label.innerText = t ? `選択中：${t}` : "";
     if (menu) menu.classList.toggle("hidden", !t);
 }
 
-// リキュールのボタン描画
-function render(id, name, data) {
+function getColorClass(name) {
+    const colors = { "紅": "red", "翠": "green", "累": "white", "蒼": "blue", "黎": "black" };
+    return colors[name] || "";
+}
+
+// 共通描画：1行目が項目名（リキュール名など）なら飛ばし、データなら出す
+function renderMenu(id, name, data) {
     const el = document.getElementById(id);
-    if (!el) return;
-    el.innerHTML = data.map(item => {
-        const color = (item[0] === "紅") ? "red" : (item[0] === "翠") ? "green" : (item[0] === "累") ? "white" : (item[0] === "蒼") ? "blue" : (item[0] === "黎") ? "black" : "";
+    if (!el || !data) return;
+    
+    // 空行を除去し、もし1行目が「リキュール名」などの見出しなら除外
+    const items = data.filter(item => item[0] && !item[0].includes("名") && item[0] !== "");
+
+    el.innerHTML = items.map(item => {
+        const color = getColorClass(item[0]);
         return `
         <label>
           <input type="radio" name="${name}" value="${item[0]}">
@@ -60,12 +66,11 @@ function render(id, name, data) {
     }).join("");
 }
 
-// オリジナルカクテルのボタン描画
 function renderOriginal(data) {
     const el = document.getElementById("originalList");
-    if (!el) return;
-    const originalItems = data.slice(1);
-    el.innerHTML = originalItems.map(item => `
+    if (!el || !data) return;
+    const items = data.filter(item => item[0] && !item[0].includes("カクテル名") && item[0] !== "");
+    el.innerHTML = items.map(item => `
         <label>
           <input type="radio" name="original" value="${item[0]}">
           <div class="card">
@@ -75,15 +80,11 @@ function renderOriginal(data) {
         </label>`).join("");
 }
 
-// フードのボタン描画（修正版）
 function renderFood(data) {
     const el = document.getElementById("foodList");
-    if (!el || !data || data.length === 0) return;
-    
-    // slice(1) を使うことで、1行目(A1)を飛ばして2行目(A2)から取得します
-    const foodItems = data.slice(1).filter(item => item[0] && item[0].trim() !== ""); 
-
-    el.innerHTML = foodItems.map(item => `
+    if (!el || !data) return;
+    const items = data.filter(item => item[0] && !item[0].includes("フード名") && item[0] !== "");
+    el.innerHTML = items.map(item => `
         <label>
           <input type="radio" name="food" value="${item[0]}">
           <div class="card">
@@ -92,7 +93,6 @@ function renderFood(data) {
         </label>`).join("");
 }
 
-// モード切り替え
 function toggleOriginal() {
     isOriginal = !isOriginal;
     if (isOriginal) isFood = false;
@@ -106,44 +106,12 @@ function toggleFood() {
 }
 
 function updateVisibility() {
-    const normalArea = document.getElementById("normalArea");
-    const originalArea = document.getElementById("originalArea");
-    const foodArea = document.getElementById("foodArea");
-
-    if (!normalArea || !originalArea || !foodArea) return;
-
-    // 一旦すべて隠す
-    normalArea.classList.add("hidden");
-    originalArea.classList.add("hidden");
-    foodArea.classList.add("hidden");
-
-    // 表示エリアの切り替え
-    if (isOriginal) {
-        originalArea.classList.remove("hidden");
-    } else if (isFood) {
-        foodArea.classList.remove("hidden");
-    } else {
-        normalArea.classList.remove("hidden");
-    }
-    
-    // モード切り替えボタン（オリジナル・フード）の見た目を更新
-    const oBtn = document.getElementById("originalBtn");
-    const fBtn = document.getElementById("foodBtn");
-    if (oBtn) oBtn.classList.toggle("active", isOriginal);
-    if (fBtn) fBtn.classList.toggle("active", isFood);
-
-    // 【重要】エリアを切り替えたら、他のエリアで選択されていたラジオボタンをリセットする
-    // これにより、白いボタンなどの選択状態が重複して残るのを防ぎます
-    if (isOriginal || isFood) {
-        // 通常メニュー（サワーなど）の選択をクリア
-        document.querySelectorAll('#normalArea input[type="radio"]').forEach(rb => rb.checked = false);
-    }
-    if (!isOriginal) {
-        document.querySelectorAll('#originalArea input[type="radio"]').forEach(rb => rb.checked = false);
-    }
-    if (!isFood) {
-        document.querySelectorAll('#foodArea input[type="radio"]').forEach(rb => rb.checked = false);
-    }
+    document.getElementById("normalArea").classList.toggle("hidden", isOriginal || isFood);
+    document.getElementById("originalArea").classList.toggle("hidden", !isOriginal);
+    document.getElementById("foodArea").classList.toggle("hidden", !isFood);
+    document.getElementById("originalBtn").classList.toggle("active", isOriginal);
+    document.getElementById("foodBtn").classList.toggle("active", isFood);
+    document.querySelectorAll('input[type="radio"]').forEach(i => i.checked = false);
 }
 
 function getSelected(n) {
@@ -151,7 +119,11 @@ function getSelected(n) {
     return el ? el.value : null;
 }
 
-// 注文追加
+function checkOrder() {
+    const btn = document.getElementById("orderCheckBtn");
+    if (btn) btn.disabled = cart.length === 0;
+}
+
 function addToCart() {
     let name = "";
     if (isOriginal) {
@@ -164,101 +136,54 @@ function addToCart() {
         name = "【フード】" + f;
     } else {
         const l1 = getSelected("l1"), l2 = getSelected("l2"), s = getSelected("sour");
-        if (!l1 || !l2 || !s) return alert("メニューを選択してください");
+        if (!l1 || !l2 || !s) return alert("メニューをすべて選択してください");
         name = `${l1}${l2}${s === "あり" ? "サワー" : "カクテル"}`;
     }
 
     const ex = cart.find(i => i.name === name);
-    if (ex) {
-        ex.qty++;
-    } else {
-        cart.push({ name, qty: 1 });
-    }
-
+    ex ? ex.qty++ : cart.push({ name, qty: 1 });
     document.querySelectorAll('input[type="radio"]').forEach(i => i.checked = false);
     checkOrder();
     alert("カートに追加しました");
 }
 
-function checkOrder() {
-    const orderBtn = document.getElementById("orderCheckBtn");
-    if (orderBtn) orderBtn.disabled = (cart.length === 0);
-}
-
-// ★カート（ポップアップ）表示の微調整
 function openCart() {
     const list = document.getElementById("cartList");
     if (!list) return;
-
-    if (cart.length === 0) {
-        list.innerHTML = "<p style='text-align:center;'>カートは空です</p>";
-    } else {
-        // 画像2枚目にあわせて：[削除] [商品名] [- 数量 +] の順で横並びに
-        list.innerHTML = cart.map((c, i) => `
-        <div class="cart-item">
-          <button class="delete-btn" onclick="removeItem(${i})">削除</button>
-          <span class="drink-name">${c.name}</span>
-          <div class="qty-area">
-            <button class="qty-btn" onclick="changeQty(${i},-1)">−</button>
-            <span class="qty-num" style="min-width:24px; text-align:center;">${c.qty}</span>
-            <button class="qty-btn" onclick="changeQty(${i},1)">＋</button>
-          </div>
-        </div>`).join("");
-    }
-    
-    const modal = document.getElementById("cartModal");
-    if (modal) modal.style.display = "block";
+    list.innerHTML = cart.map((c, i) => `
+    <div class="cart-item">
+      <button class="delete-btn" onclick="removeItem(${i})">削除</button>
+      <span class="drink-name">${c.name}</span>
+      <div class="qty-area">
+        <button class="qty-btn" onclick="changeQty(${i},-1)">−</button>
+        <span class="qty-num">${c.qty}</span>
+        <button class="qty-btn" onclick="changeQty(${i},1)">＋</button>
+      </div>
+    </div>`).join("");
+    document.getElementById("cartModal").style.display = "block";
 }
 
-function closeCart() { 
-    const modal = document.getElementById("cartModal");
-    if (modal) modal.style.display = "none"; 
-}
+function closeCart() { document.getElementById("cartModal").style.display = "none"; }
+function changeQty(i, d) { cart[i].qty += d; if (cart[i].qty <= 0) cart.splice(i, 1); openCart(); checkOrder(); }
+function removeItem(i) { cart.splice(i, 1); openCart(); checkOrder(); }
 
-function changeQty(i, d) { 
-    cart[i].qty += d; 
-    if (cart[i].qty <= 0) cart.splice(i, 1); 
-    openCart(); 
-    checkOrder(); 
-}
-
-function removeItem(i) { 
-    cart.splice(i, 1); 
-    openCart(); 
-    checkOrder(); 
-}
-
-// 送信処理
 function sendOrder() {
-    const table = document.getElementById("table");
+    const table = document.getElementById("table").value;
     const btn = document.getElementById("sendBtn");
-
-    if (!table.value) return alert("卓を選択してください");
-    if (cart.length === 0) return alert("カートが空です");
-
-    if(btn.disabled) return;
+    if (!table) return alert("卓を選択してください");
     btn.disabled = true;
-    const originalText = btn.innerText;
     btn.innerText = "送信中...";
-
     fetch(API_URL, {
         method: "POST",
-        body: JSON.stringify({ table: table.value, items: cart })
+        body: JSON.stringify({ table, items: cart })
     })
-    .then(res => res.text())
-    .then(res => {
-        if(res === "ok"){
-            alert("送信完了！");
-            cart = [];
-            closeCart();
-            checkOrder();
-        } else {
-            alert("エラー：" + res);
-        }
-    })
-    .catch(() => alert("通信に失敗しました"))
-    .finally(() => {
+    .then(() => {
+        alert("送信完了しました");
+        cart = [];
+        closeCart();
+        checkOrder();
+        btn.innerText = "送信";
         btn.disabled = false;
-        btn.innerText = originalText;
-    });
+    })
+    .catch(() => { alert("送信に失敗しました"); btn.disabled = false; });
 }
