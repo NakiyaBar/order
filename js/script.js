@@ -75,14 +75,18 @@ function renderOriginal(data) {
         </label>`).join("");
 }
 
-// フードのボタン描画
+// フードのボタン描画（修正版）
 function renderFood(data) {
     const el = document.getElementById("foodList");
     if (!el || !data) return;
     
-    // スプレッドシートの1行目（フード名）を除外してループ
-    // もしすでに除外されているデータが来てもエラーにならないよう filter を追加
-    const foodItems = data.filter(item => item[0] && item[0] !== "フード名"); 
+    // 1行目が「フード名」であってもなくても、その文字が含まれるデータを除外する
+    // また、空の行も表示されないようにチェックを追加
+    const foodItems = data.filter(item => 
+        item[0] && 
+        item[0] !== "フード名" && 
+        item[0].trim() !== ""
+    ); 
 
     el.innerHTML = foodItems.map(item => `
         <label>
