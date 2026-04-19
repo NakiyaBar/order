@@ -1,6 +1,6 @@
 /**
  * NAKIYA BAR オーダーシート用メインスクリプト
- * 完全版（フード・オリジナル表示切り替え & 見出しスキップ対応）
+ * ポップアップレイアウト微調整版
  */
 
 const API_URL = "https://script.google.com/macros/s/AKfycbx3Z88Rj0Qo4HUSKVA-Yc5LHhHiMTYHO54Q-9n6NbXqGAdOYx9HOAHGaIKriWfBd8vN/exec";
@@ -60,14 +60,11 @@ function render(id, name, data) {
     }).join("");
 }
 
-// オリジナルカクテルのボタン描画（見出しスキップ）
+// オリジナルカクテルのボタン描画
 function renderOriginal(data) {
     const el = document.getElementById("originalList");
     if (!el) return;
-    
-    // スプレッドシートの1行目（見出し）を飛ばして2行目から表示
     const originalItems = data.slice(1);
-
     el.innerHTML = originalItems.map(item => `
         <label>
           <input type="radio" name="original" value="${item[0]}">
@@ -78,14 +75,11 @@ function renderOriginal(data) {
         </label>`).join("");
 }
 
-// フードのボタン描画（見出しスキップ）
+// フードのボタン描画
 function renderFood(data) {
     const el = document.getElementById("foodList");
     if (!el) return;
-    
-    // スプレッドシートの1行目（見出し）を飛ばして2行目から表示
     const foodItems = data.slice(1); 
-
     el.innerHTML = foodItems.map(item => `
         <label>
           <input type="radio" name="food" value="${item[0]}">
@@ -95,21 +89,19 @@ function renderFood(data) {
         </label>`).join("");
 }
 
-// モード切り替え：オリジナルカクテル
+// モード切り替え
 function toggleOriginal() {
     isOriginal = !isOriginal;
-    if (isOriginal) isFood = false; // フードをオフにする
+    if (isOriginal) isFood = false;
     updateVisibility();
 }
 
-// モード切り替え：フード
 function toggleFood() {
     isFood = !isFood;
-    if (isFood) isOriginal = false; // オリジナルをオフにする
+    if (isFood) isOriginal = false;
     updateVisibility();
 }
 
-// 表示の更新（通常・オリジナル・フードの切り替えを確実に実行）
 function updateVisibility() {
     const normalArea = document.getElementById("normalArea");
     const originalArea = document.getElementById("originalArea");
@@ -117,12 +109,10 @@ function updateVisibility() {
 
     if (!normalArea || !originalArea || !foodArea) return;
 
-    // 一旦すべて隠す
     normalArea.classList.add("hidden");
     originalArea.classList.add("hidden");
     foodArea.classList.add("hidden");
 
-    // 現在のフラグに合わせて1つだけ表示
     if (isOriginal) {
         originalArea.classList.remove("hidden");
     } else if (isFood) {
@@ -131,20 +121,18 @@ function updateVisibility() {
         normalArea.classList.remove("hidden");
     }
     
-    // ボタンの「アクティブ（点灯）」状態を更新
     const oBtn = document.getElementById("originalBtn");
     const fBtn = document.getElementById("foodBtn");
     if (oBtn) oBtn.classList.toggle("active", isOriginal);
     if (fBtn) fBtn.classList.toggle("active", isFood);
 }
 
-// 選択されているラジオボタンの値を取得
 function getSelected(n) {
     const el = document.querySelector(`input[name="${n}"]:checked`);
     return el ? el.value : null;
 }
 
-// 注文追加処理
+// 注文追加
 function addToCart() {
     let name = "";
     if (isOriginal) {
@@ -157,7 +145,7 @@ function addToCart() {
         name = "【フード】" + f;
     } else {
         const l1 = getSelected("l1"), l2 = getSelected("l2"), s = getSelected("sour");
-        if (!l1 || !l2 || !s) return alert("リキュールとサワーを選択してください");
+        if (!l1 || !l2 || !s) return alert("メニューを選択してください");
         name = `${l1}${l2}${s === "あり" ? "サワー" : "カクテル"}`;
     }
 
@@ -168,37 +156,33 @@ function addToCart() {
         cart.push({ name, qty: 1 });
     }
 
-    // 選択をリセット（ラジオボタンのチェックを外す）
     document.querySelectorAll('input[type="radio"]').forEach(i => i.checked = false);
-    
     checkOrder();
     alert("カートに追加しました");
 }
 
-// 注文確認ボタンの有効/無効切り替え
 function checkOrder() {
     const orderBtn = document.getElementById("orderCheckBtn");
-    if (orderBtn) {
-        orderBtn.disabled = (cart.length === 0);
-    }
+    if (orderBtn) orderBtn.disabled = (cart.length === 0);
 }
 
-// カート（注文確認）を開く
+// ★カート（ポップアップ）表示の微調整
 function openCart() {
     const list = document.getElementById("cartList");
     if (!list) return;
 
     if (cart.length === 0) {
-        list.innerHTML = "<p>カートは空です</p>";
+        list.innerHTML = "<p style='text-align:center;'>カートは空です</p>";
     } else {
+        // 画像2枚目にあわせて：[削除] [商品名] [- 数量 +] の順で横並びに
         list.innerHTML = cart.map((c, i) => `
         <div class="cart-item">
+          <button class="delete-btn" onclick="removeItem(${i})">削除</button>
           <span class="drink-name">${c.name}</span>
           <div class="qty-area">
             <button class="qty-btn" onclick="changeQty(${i},-1)">−</button>
-            <span class="qty-num">${c.qty}</span>
+            <span class="qty-num" style="min-width:24px; text-align:center;">${c.qty}</span>
             <button class="qty-btn" onclick="changeQty(${i},1)">＋</button>
-            <button class="delete-btn" onclick="removeItem(${i})">削除</button>
           </div>
         </div>`).join("");
     }
@@ -207,13 +191,11 @@ function openCart() {
     if (modal) modal.style.display = "block";
 }
 
-// カートを閉じる
 function closeCart() { 
     const modal = document.getElementById("cartModal");
     if (modal) modal.style.display = "none"; 
 }
 
-// 数量変更
 function changeQty(i, d) { 
     cart[i].qty += d; 
     if (cart[i].qty <= 0) cart.splice(i, 1); 
@@ -221,44 +203,43 @@ function changeQty(i, d) {
     checkOrder(); 
 }
 
-// アイテム削除
 function removeItem(i) { 
     cart.splice(i, 1); 
     openCart(); 
     checkOrder(); 
 }
 
-// スプレッドシートへ送信
-function sendOrder(){
-  const btn = document.getElementById("sendBtn");
+// 送信処理
+function sendOrder() {
+    const table = document.getElementById("table");
+    const btn = document.getElementById("sendBtn");
 
-  // 連打防止
-  if(btn.disabled) return;
-  btn.disabled = true;
-  btn.innerText = "送信中...";
+    if (!table.value) return alert("卓を選択してください");
+    if (cart.length === 0) return alert("カートが空です");
 
-  fetch(API_URL,{
-    method:"POST",
-    body:JSON.stringify({
-      table:table.value,
-      items:cart
+    if(btn.disabled) return;
+    btn.disabled = true;
+    const originalText = btn.innerText;
+    btn.innerText = "送信中...";
+
+    fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({ table: table.value, items: cart })
     })
-  })
-  .then(res => res.text())
-  .then(res => {
-    if(res === "ok"){
-      alert("送信完了！");
-      cart = [];
-      closeCart();
-    }else{
-      alert("エラー：" + res);
-    }
-  })
-  .catch(()=>{
-    alert("通信失敗");
-  })
-  .finally(()=>{
-    btn.disabled = false;
-    btn.innerText = "送信";
-  });
+    .then(res => res.text())
+    .then(res => {
+        if(res === "ok"){
+            alert("送信完了！");
+            cart = [];
+            closeCart();
+            checkOrder();
+        } else {
+            alert("エラー：" + res);
+        }
+    })
+    .catch(() => alert("通信に失敗しました"))
+    .finally(() => {
+        btn.disabled = false;
+        btn.innerText = originalText;
+    });
 }
