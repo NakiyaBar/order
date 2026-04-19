@@ -54,11 +54,15 @@ function render(id, name, data) {
     }).join("");
 }
 
-// オリジナルカクテルのボタン描画
+// オリジナルカクテルのボタン描画（修正版）
 function renderOriginal(data) {
     const el = document.getElementById("originalList");
     if (!el) return;
-    el.innerHTML = data.map(item => `
+    
+    // slice(1) で見出しを飛ばす
+    const originalItems = data.slice(1);
+
+    el.innerHTML = originalItems.map(item => `
         <label>
           <input type="radio" name="original" value="${item[0]}">
           <div class="card">
@@ -68,11 +72,15 @@ function renderOriginal(data) {
         </label>`).join("");
 }
 
-// フードのボタン描画
+// フードのボタン描画（修正版）
 function renderFood(data) {
     const el = document.getElementById("foodList");
     if (!el) return;
-    el.innerHTML = data.map(item => `
+    
+    // slice(1) を追加して、スプレッドシートの1行目（見出し）を無視する
+    const foodItems = data.slice(1); 
+
+    el.innerHTML = foodItems.map(item => `
         <label>
           <input type="radio" name="food" value="${item[0]}">
           <div class="card food">
