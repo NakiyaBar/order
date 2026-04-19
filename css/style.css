@@ -1,154 +1,184 @@
+/**
+ * NAKIYA BAR オーダーシート用 スタイルシート
+ * 見やすさ改善版（文字を黒、ボタン背景を白に統一）
+ */
+
 body {
-    font-family:sans-serif;
-    padding:15px;
-    background-image: url("../images/background.png");
-    background-size: 100%;
-    background-repeat: repeat;
-    color: #cccccc;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    padding: 15px;
+    background-image: url("../images/background.png"); /* 背景画像はそのまま */
+    background-color: #0c1c38; /* 背景画像の読み込み失敗時のフォールバック色 */
+    background-size: cover;
+    background-attachment: fixed;
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
 }
 
 .hidden {
-    display:none;
+    display: none !important;
 }
 
-/* 卓 */
+/* --- コンテナとタイトル --- */
+h3 {
+    margin: 15px 0 10px;
+    color: #4cafef; /* タイトルは青系で見やすく */
+    font-size: 18px;
+    font-weight: bold;
+    border-bottom: 2px solid #4cafef;
+    padding-bottom: 5px;
+    display: inline-block;
+}
+
 .top {
-    display:flex;
-    align-items:center;
-    gap:12px;
+    background-color: rgba(255, 255, 255, 0.95); /* 卓選択は白背景で確実に読む */
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
-#table {
-    min-width:160px;
-    padding:8px;
-    font-size:16px;
+#tableLabel {
+    color: #333; /* 選択中の文字は黒 */
+    font-weight: bold;
 }
 
-/* グリッド */
+/* --- モード切り替えボタン（2個ずつ） --- */
+.mode-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2個ずつ並べる */
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+/* --- 各種メニューグリッド（2個ずつ） --- */
 .grid {
-    display:flex;
-    gap:10px;
-    flex-wrap:wrap;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* メニューボタンも2個ずつ並べる */
+    gap: 15px; /* ボタン間の余白 */
+    margin-bottom: 20px;
 }
 
-/* カード */
+/* --- 【最重要】ボタン（カード）の基本スタイル（白背景・黒文字） --- */
 .card {
-    border:2px solid #ccc;
-    padding:10px;
-    width:30%;
-    min-width:90px;
-    text-align:center;
-    border-radius:10px;
-    transition:0.2s;
-    color: #323232
+    background-color: #ffffff !important; /* 背景は白 */
+    color: #000000 !important; /* 文字は黒（重要） */
+    border: 3px solid #ddd;
+    padding: 15px 10px;
+    text-align: center;
+    border-radius: 10px;
+    transition: 0.2s;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2); /* 少し立体感 */
+    font-weight: 500;
+    position: relative;
+    overflow: hidden;
+    height: 100%; /* グリッド内で高さを揃える */
+    box-sizing: border-box;
 }
 
 .card:hover {
-    transform:scale(1.05);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 10px rgba(0,0,0,0.3);
 }
 
-input {
-    display:none;
+/* キャスト名やよみかた（smallタグ） */
+.card small, .card div:nth-child(2) {
+    font-size: 11px;
+    color: #555; /* キャスト名は少し薄いグレー */
+    display: block;
+    margin-top: 5px;
 }
 
+/* --- ラジオボタンの制御と選択エフェクト --- */
+input[type="radio"] {
+    display: none; /* ラジオボタン本体は隠す */
+}
+
+/* 選択されたボタン（白背景のまま、枠を青く） */
 input:checked + .card {
-    border-color:#4cafef;
-    background:#e3f2fd;
+    border-color: #4cafef;
+    box-shadow: 0 0 15px rgba(76, 175, 239, 0.7); /* 青い発光効果 */
+    transform: translateY(-3px) scale(1.02);
 }
 
-/* 色 */
-.red {
-    background:#ffe5e5;
-    border-color:#ffffff;
-}
+/* --- リキュールの色分け（白背景を保ち、枠線またはワンポイントで色を表現） --- */
+.card.red { border-color: #ff8a8a; }
+.card.green { border-color: #7edc7e; }
+.card.white { border-color: #ddd; }
+.card.blue { border-color: #7fb3ff; }
+.card.black { border-color: #333; }
 
-.green {
-    background:#e5ffe5;
-    border-color:#7edc7e;
-}
-
-.white {
-    background:#f5f5f5;
-}
-
-.blue {
-    background:#e5f0ff;
-    border-color:#7fb3ff;
-}
-
-.black {
-    background:#eeeeee;
-    border-color:#999;
-}
-
-/* サワー余白 */
-.sour-area {
-    margin-bottom:20px;
-}
-
-/* ボタン */
-button {
-    margin:5px;
-    padding:12px 18px;
-    border-radius:10px;
-    font-size:16px;
-}
-
-/* オリジナルボタンON */
-#originalBtn.active {
-    background:#4cafef;
-    color:white;
-}
-
+/* フードのワンポイント */
 .card.food {
-  background: #fff3e0;
-  border: 2px solid #ff9800;
+  border-color: #ff9800;
 }
 
-/* モーダル */
+/* --- 下部アクションボタン（2個ずつ） --- */
+#menuArea > #addBtn, #menuArea > #orderCheckBtn {
+    width: auto;
+    width: calc(50% - 12px); /* 2個並べる計算 */
+    display: inline-block;
+}
+
+#menuArea > #orderCheckBtn {
+    margin-left: 10px;
+}
+
+/* ボタンの基本スタイル */
+button {
+    font-size: 16px;
+    padding: 15px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    transition: 0.2s;
+    font-weight: bold;
+    width: 100%;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 10px rgba(0,0,0,0.3);
+}
+
+/* 通常の白系ボタン */
+button#foodBtn, button#addBtn, button#orderCheckBtn {
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+/* アクティブ（選択中）のボタン（青） */
+button.active, button#addBtn[style*="background:#4cafef"] {
+    background-color: #4cafef !important;
+    color: white !important;
+}
+
+/* カートに追加しました（jsのaddToCart内のアラートの代わりに画面表示したいが、とりあえずアラートはそのまま） */
+
+/* --- モーダル（注文確認） --- */
 .modal {
-    position:fixed;
-    top:0; left:0;
-    width:100%; height:100%;
-    background:rgba(0,0,0,0.5);
-    display:none;
+    background-color: rgba(0,0,0,0.7);
 }
 
 .modal-content {
-    background:white;
-    margin:10% auto;
-    padding:20px;
-    width:90%;
-    max-width:400px;
-    border-radius:12px;
+    background-color: #fff;
+    color: #333;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 450px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
 }
 
-/* カート */
+.modal-content h3 {
+    border-color: #333;
+    color: #333;
+}
+
 .cart-item {
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:10px;
-    margin:10px 0;
-}
-
-.drink-name {
-    flex:1;
-    text-align:center;
-}
-
-.qty-area {
-    display:flex;
-    align-items:center;
-    gap:5px;
-}
-
-.qty-btn {
-    width:40px;
-    height:40px;
-}
-
-.delete-btn {
-    background:red;
-    color:white;
+    border-bottom: 1px solid #ddd;
+    color: #333;
 }
