@@ -113,10 +113,12 @@ function updateVisibility() {
 
     if (!normalArea || !originalArea || !foodArea) return;
 
+    // 一旦すべて隠す
     normalArea.classList.add("hidden");
     originalArea.classList.add("hidden");
     foodArea.classList.add("hidden");
 
+    // 表示エリアの切り替え
     if (isOriginal) {
         originalArea.classList.remove("hidden");
     } else if (isFood) {
@@ -125,10 +127,24 @@ function updateVisibility() {
         normalArea.classList.remove("hidden");
     }
     
+    // モード切り替えボタン（オリジナル・フード）の見た目を更新
     const oBtn = document.getElementById("originalBtn");
     const fBtn = document.getElementById("foodBtn");
     if (oBtn) oBtn.classList.toggle("active", isOriginal);
     if (fBtn) fBtn.classList.toggle("active", isFood);
+
+    // 【重要】エリアを切り替えたら、他のエリアで選択されていたラジオボタンをリセットする
+    // これにより、白いボタンなどの選択状態が重複して残るのを防ぎます
+    if (isOriginal || isFood) {
+        // 通常メニュー（サワーなど）の選択をクリア
+        document.querySelectorAll('#normalArea input[type="radio"]').forEach(rb => rb.checked = false);
+    }
+    if (!isOriginal) {
+        document.querySelectorAll('#originalArea input[type="radio"]').forEach(rb => rb.checked = false);
+    }
+    if (!isFood) {
+        document.querySelectorAll('#foodArea input[type="radio"]').forEach(rb => rb.checked = false);
+    }
 }
 
 function getSelected(n) {
