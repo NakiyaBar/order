@@ -40,26 +40,28 @@
     <div id="originalList" class="grid"></div>
   </div>
 
-<div id="foodArea" class="hidden">
+  <div id="foodArea" class="hidden">
     <h3>フード</h3>
     <div id="foodList" class="grid"></div> 
-</div>
+  </div>
     
-<button id="addBtn" onclick="addToCart()" style="background:#4cafef; color:white;">カートに追加</button>
-  <button id="orderCheckBtn" onclick="openCart()">注文確認</button>
+  <div class="action-buttons" style="margin-top: 20px;">
+    <button id="addBtn" onclick="addToCart()" style="background:#4cafef; color:white;">カートに追加</button>
+    <button id="orderCheckBtn" onclick="openCart()" disabled>注文確認</button>
+  </div>
 </div>
 
-<div id="cartModal" class="modal">
+<div id="cartModal" class="modal" style="display:none;">
   <div class="modal-content">
     <h3>注文確認</h3>
     <div id="cartList"></div>
+    
     <div class="cart-actions">
-      <button id="sendBtn" onclick="sendOrder()" style="background:#4cafef; color:white;">送信</button>
+      <button id="sendBtn" onclick="sendOrder()">送信</button>
       <button id="closeBtn" onclick="closeCart()">閉じる</button>
     </div>
   </div>
 </div>
-  </div>
-</div>
+
 </body>
 </html>
