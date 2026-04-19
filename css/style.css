@@ -192,24 +192,21 @@ button.active, button#addBtn[style*="background:#4cafef"] {
     color: #333;
 }
 
-/* --- カート（注文確認）モーダル内のボタン設定 --- */
+/* カート画面の中のボタン設定 */
 .cart-actions {
     display: flex;
-    flex-direction: column; /* ボタンを縦に並べる */
+    flex-direction: column; /* 縦に並べる */
     gap: 10px;              /* ボタン同士の隙間 */
-    margin-top: 20px;       /* カートリストとの間の余白 */
+    margin-top: 20px;
 }
 
 #sendBtn, #closeBtn {
-    display: block;
     width: 100%;            /* 横幅いっぱい */
-    padding: 15px;          /* 押しやすい大きさ */
+    padding: 15px;
     font-size: 18px;
     font-weight: bold;
     border-radius: 12px;
     border: none;
-    cursor: pointer;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
 }
 
 /* 送信ボタンの色（青） */
