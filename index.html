@@ -45,17 +45,15 @@
     <div id="foodList" class="grid"></div>
   </div>
     
-<button id="addBtn" ...>カートに追加</button> <button id="orderCheckBtn" ...>注文確認</button> <button id="sendBtn" ...>送信</button> <button id="closeBtn" ...>閉じる</button> <div id="cartModal" class="modal">
-  <div class="modal-content">
-    <h3>注文確認</h3>
-    <div id="cartList"></div>
-  
+<button id="addBtn" onclick="addToCart()" style="background:#4cafef; color:white;">カートに追加</button>
+  <button id="orderCheckBtn" onclick="openCart()">注文確認</button>
+</div>
+
 <div id="cartModal" class="modal">
   <div class="modal-content">
     <h3>注文確認</h3>
     <div id="cartList"></div>
-    
-<div class="cart-actions">
+    <div class="cart-actions">
       <button id="sendBtn" onclick="sendOrder()" style="background:#4cafef; color:white;">送信</button>
       <button id="closeBtn" onclick="closeCart()">閉じる</button>
     </div>
