@@ -28,20 +28,32 @@ h3 {
     display: inline-block;
 }
 
+/* --- 卓選択エリア：幅を半分に調整 --- */
 .top {
-    background-color: rgba(255, 255, 255, 0.95); /* 卓選択は白背景で確実に読む */
-    padding: 15px;
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    margin-bottom: 20px;
     display: flex;
     align-items: center;
     gap: 12px;
+    background-color: rgba(255, 255, 255, 0.95);
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+#table {
+    /* flex: 1; を削除して width を指定します */
+    width: 50%;        /* 横幅を50%（半分）に設定 */
+    padding: 10px;
+    font-size: 18px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    background-color: white;
 }
 
 #tableLabel {
-    color: #333; /* 選択中の文字は黒 */
+    color: #333;
     font-weight: bold;
+    font-size: 14px;
+    white-space: nowrap; /* ラベルが改行されないように */
 }
 
 /* --- モード切り替えボタン（2個ずつ） --- */
