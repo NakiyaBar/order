@@ -198,3 +198,16 @@ button.active {
     border: 1px solid #333 !important;
     padding: 10px;
 }
+
+/* ラジオボタンがチェックされた直後の .card のスタイル */
+input:checked + .card {
+    border: 3px solid #4cafef !important; /* 太い青枠 */
+    background-color: #e3f2fd !important; /* 薄い青背景 */
+    box-shadow: 0 0 15px rgba(76, 175, 239, 0.5); /* 青い光 */
+    transform: scale(1.02); /* ほんの少しだけ大きくして強調 */
+}
+
+/* 「あり」「なし」などの白いカード専用の調整 */
+.card.white {
+    border: 1px solid #ccc; /* 通常時は薄いグレーの枠線 */
+}
