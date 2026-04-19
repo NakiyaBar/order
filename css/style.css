@@ -17,25 +17,38 @@ body {
     display: none !important;
 }
 
-/* --- 卓選択エリア（幅を広げました） --- */
+/* --- 卓選択エリア：幅を広げる設定 --- */
 .top {
-    background-color: rgba(255, 255, 255, 0.95);
-    padding: 15px;
-    border-radius: 12px;
-    margin-bottom: 20px;
     display: flex;
     align-items: center;
     gap: 12px;
 }
 
-/* 卓選択のプルダウンを広げる設定 */
 #table {
-    flex: 1;         /* 親要素のスペースを最大限に使う */
-    min-width: 200px; /* 最低限の幅を確保 */
-    padding: 10px;    /* 内側の余白を少し増やして押しやすく */
-    font-size: 18px;  /* 文字を少し大きく */
-    border-radius: 8px;
+    flex: 1;           /* ★ここを追加：右側の余白をすべて使って幅を広げます */
+    min-width: 160px;
+    padding: 8px;
+    font-size: 16px;
+    border-radius: 5px;
     border: 1px solid #ccc;
+}
+
+/* --- 下部ボタン：元の縦並びに戻す設定 --- */
+#addBtn, #orderCheckBtn {
+    display: block;    /* 縦に並べる */
+    width: 100%;       /* 横幅いっぱいに広げる */
+    margin: 10px 0;    /* 上下に余白を作る */
+    padding: 15px;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+}
+
+/* もし action-buttons という囲みを作っていた場合は、以下の設定で無効化できます */
+.action-buttons {
+    display: block !important; 
 }
 
 #tableLabel {
