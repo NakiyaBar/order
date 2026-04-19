@@ -79,12 +79,14 @@ function renderOriginal(data) {
 function renderFood(data) {
     const el = document.getElementById("foodList");
     if (!el) return;
+    
+    // 見出しを飛ばし、データがある場合のみ描画
     const foodItems = data.slice(1); 
+
     el.innerHTML = foodItems.map(item => `
         <label>
           <input type="radio" name="food" value="${item[0]}">
-          <div class="card food">
-            <div>${item[0]}</div>
+          <div class="card"> <div>${item[0]}</div>
           </div>
         </label>`).join("");
 }
