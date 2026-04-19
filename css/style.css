@@ -107,11 +107,13 @@ input:checked + .card {
 
 /* --- リキュールの色分け（★画像のように枠線を色付け） --- */
 .card.red {
-    border-color: #ffcccc; /* 紅：薄いピンク */
+    background:#ffe5e5;
+    border-color:#ffffff;
 }
 
 .card.green {
-    border-color: #ccffcc; /* 翠：薄いグリーン */
+    background:#e5ffe5;
+    border-color:#7edc7e;
 }
 
 .card.white {
@@ -119,11 +121,13 @@ input:checked + .card {
 }
 
 .card.blue {
-    border-color: #ccccff; /* 蒼：薄いブルー */
+    background:#e5f0ff;
+    border-color:#7fb3ff;
 }
 
 .card.black {
-    border-color: #cccccc; /* 黎：薄いグレー */
+    background:#eeeeee;
+    border-color:#999;
 }
 
 /* --- 下部アクションボタン（2個ずつ） --- */
