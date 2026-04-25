@@ -2,7 +2,7 @@
  * NAKIYA BAR オーダーシート用メインスクリプト
  */
 
-const API_URL = "https://script.google.com/macros/s/AKfycbzuwPU2QHw7kfcrTSMIraBMIuHzZLCDo4-TRXLcEfHcVXVUeDSNeWkM6rnSKzFdT28o/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbx3Z88Rj0Qo4HUSKVA-Yc5LHhHiMTYHO54Q-9n6NbXqGAdOYx9HOAHGaIKriWfBd8vN/exec";
 
 let cart = [];
 let isOriginal = false;
