@@ -170,6 +170,7 @@ function removeItem(i) { cart.splice(i, 1); openCart(); checkOrder(); }
 function sendOrder() {
     const table = document.getElementById("table").value;
     const btn = document.getElementById("sendBtn");
+
     if (!table) return alert("卓を選択してください");
 
     btn.disabled = true;
@@ -182,16 +183,23 @@ function sendOrder() {
         },
         body: JSON.stringify({ table, items: cart })
     })
-    .then(() => {
-        alert("送信完了しました");
-        cart = [];
-        closeCart();
-        checkOrder();
+    .then(res => res.json())
+    .then(data => {
+        if (data.result === "success") {
+            alert("送信完了しました");
+            cart = [];
+            closeCart();
+            checkOrder();
+        } else {
+            alert("送信エラー: " + data.message);
+        }
+
         btn.innerText = "送信";
         btn.disabled = false;
     })
-    .catch(() => {
-        alert("送信に失敗しました");
+    .catch(err => {
+        console.error(err);
+        alert("通信エラー");
         btn.disabled = false;
     });
 }
