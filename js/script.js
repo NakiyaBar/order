@@ -180,25 +180,18 @@ function sendOrder() {
         headers: {
             "Content-Type": "application/json"
         },
-        mode: "cors",
         body: JSON.stringify({ table, items: cart })
     })
-    .then(res => res.json())
-    .then(data => {
-        if (data.result === "success") {
-            alert("送信完了しました");
-            cart = [];
-            closeCart();
-            checkOrder();
-        } else {
-            alert("送信エラー: " + data.message);
-        }
+    .then(() => {
+        alert("送信完了しました");
+        cart = [];
+        closeCart();
+        checkOrder();
         btn.innerText = "送信";
         btn.disabled = false;
     })
-    .catch(err => {
-        console.error(err);
-        alert("通信エラー");
+    .catch(() => {
+        alert("送信に失敗しました");
         btn.disabled = false;
     });
 }
