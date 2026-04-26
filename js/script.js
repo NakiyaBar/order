@@ -178,11 +178,10 @@ function sendOrder() {
 
     fetch(API_URL, {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
+        // headers を消し、body に直接 JSON 文字列を入れる
         body: JSON.stringify({ table, items: cart })
     })
+
     .then(res => res.json())
     .then(data => {
         if (data.result === "success") {
