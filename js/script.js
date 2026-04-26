@@ -171,10 +171,15 @@ function sendOrder() {
     const table = document.getElementById("table").value;
     const btn = document.getElementById("sendBtn");
     if (!table) return alert("卓を選択してください");
+
     btn.disabled = true;
     btn.innerText = "送信中...";
+
     fetch(API_URL, {
         method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
         body: JSON.stringify({ table, items: cart })
     })
     .then(() => {
@@ -185,5 +190,8 @@ function sendOrder() {
         btn.innerText = "送信";
         btn.disabled = false;
     })
-    .catch(() => { alert("送信に失敗しました"); btn.disabled = false; });
+    .catch(() => {
+        alert("送信に失敗しました");
+        btn.disabled = false;
+    });
 }
