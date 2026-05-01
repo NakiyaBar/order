@@ -153,7 +153,7 @@ function addToCart() {
         const l2Ruby = l2El.parentElement.querySelector('div[style*="font-size:10px"]').innerText;
 
         name = `${l1Name}${l2Name}${s === "あり" ? "サワー" : "カクテル"}`;
-        ruby = `（${l1Ruby}・${l2Ruby}）`; // 読み方をセット
+        ruby = `（${l1Ruby}${l2Ruby}）`; // 読み方をセット
     }
 
     // カートに「名前 + 読み方」で登録する
