@@ -124,29 +124,47 @@ function checkOrder() {
     if (btn) btn.disabled = cart.length === 0;
 }
 
+// 【修正箇所①】カートに追加する際に読み方も保存する
 function addToCart() {
     let name = "";
+    let ruby = ""; // 読み方用の変数を追加
+
     if (isOriginal) {
-        const o = getSelected("original");
-        if (!o) return alert("カクテルを選択してください");
-        name = "【オリ】" + o;
+        const el = document.querySelector('input[name="original"]:checked');
+        if (!el) return alert("カクテルを選択してください");
+        name = "【オリ】" + el.value;
+        // オリジナルも読み方（2列目）があれば取得するように変更検討可
     } else if (isFood) {
-        const f = getSelected("food");
-        if (!f) return alert("フードを選択してください");
-        name = "【フード】" + f;
+        const el = document.querySelector('input[name="food"]:checked');
+        if (!el) return alert("フードを選択してください");
+        name = "【フード】" + el.value;
     } else {
-        const l1 = getSelected("l1"), l2 = getSelected("l2"), s = getSelected("sour");
-        if (!l1 || !l2 || !s) return alert("メニューをすべて選択してください");
-        name = `${l1}${l2}${s === "あり" ? "サワー" : "カクテル"}`;
+        const l1El = document.querySelector('input[name="l1"]:checked');
+        const l2El = document.querySelector('input[name="l2"]:checked');
+        const s = getSelected("sour");
+
+        if (!l1El || !l2El || !s) return alert("メニューをすべて選択してください");
+
+        // 読み方（カード内の隠し属性や、直接DOMから取得）
+        // ここでは一番確実な「選択されたカード内のテキスト」から取得するロジックにします
+        const l1Name = l1El.value;
+        const l1Ruby = l1El.parentElement.querySelector('div[style*="font-size:10px"]').innerText;
+        const l2Name = l2El.value;
+        const l2Ruby = l2El.parentElement.querySelector('div[style*="font-size:10px"]').innerText;
+
+        name = `${l1Name}${l2Name}${s === "あり" ? "サワー" : "カクテル"}`;
+        ruby = `（${l1Ruby}・${l2Ruby}）`; // 読み方をセット
     }
 
-    const ex = cart.find(i => i.name === name);
-    ex ? ex.qty++ : cart.push({ name, qty: 1 });
+    // カートに「名前 + 読み方」で登録する
+    const fullName = name + (ruby ? " " + ruby : "");
+    const ex = cart.find(i => i.name === fullName);
+    ex ? ex.qty++ : cart.push({ name: fullName, qty: 1 });
+
     document.querySelectorAll('input[type="radio"]').forEach(i => i.checked = false);
     checkOrder();
     alert("カートに追加しました");
 }
-
 function openCart() {
     const list = document.getElementById("cartList");
     if (!list) return;
