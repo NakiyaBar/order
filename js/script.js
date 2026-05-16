@@ -195,14 +195,15 @@ function closeCart() { document.getElementById("cartModal").style.display = "non
 function changeQty(i, d) { cart[i].qty += d; if (cart[i].qty <= 0) cart.splice(i, 1); openCart(); checkOrder(); }
 function removeItem(i) { cart.splice(i, 1); openCart(); checkOrder(); }
 
+// 送信処理
 function sendOrder() {
     const table = document.getElementById("table").value;
-    const staff = document.getElementById("staff").value;
+    const staff = document.getElementById("staff").value; // 【追加】画面から担当名を取得
     const btn = document.getElementById("sendBtn");
 
     if (!table) return alert("卓を選択してください");
-    if (!staff) return alert("担当を選択してください");
-if (cart.length === 0) return alert("カートが空です");
+    if (!staff) return alert("担当を選択してください"); // 【追加】未選択チェック
+    if (cart.length === 0) return alert("カートが空です");
 
     if (btn.disabled) return;
     btn.disabled = true;
@@ -210,10 +211,10 @@ if (cart.length === 0) return alert("カートが空です");
 
     fetch(API_URL, {
         method: "POST",
-        // body の中に table と items に並べて staff も追加します
+        // 【修正】bodyの中に「staff」も追加して一緒にGASへ送信する
         body: JSON.stringify({ 
             table: table, 
-            staff: staff, // 【追加】GAS側に担当者名を送る
+            staff: staff, 
             items: cart 
         })
     })
