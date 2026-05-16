@@ -9,11 +9,20 @@
 </head>
 <body>
 
-<div class="top">
-  <h3>卓</h3>
-  <select id="table" onchange="onTableSelect()"></select>
-  <div id="tableLabel"></div>
+<div class="top" style="display: flex; gap: 15px; justify-content: space-between; align-items: center;">
+  
+  <div style="flex: 1; display: flex; align-items: center; gap: 8px;">
+    <h3 style="margin: 0; border: none; padding: 0; white-space: nowrap;">卓</h3>
+    <select id="table" onchange="onTableSelect()" style="width: 100%; padding: 8px; font-size: 16px; border-radius: 5px; border: 1px solid #ccc;"></select>
+  </div>
+  
+  <div style="flex: 1; display: flex; align-items: center; gap: 8px;">
+    <h3 style="margin: 0; border: none; padding: 0; white-space: nowrap;">担当</h3>
+    <select id="staff" style="width: 100%; padding: 8px; font-size: 16px; border-radius: 5px; border: 1px solid #ccc;"></select>
+  </div>
+
 </div>
+<div id="tableLabel" style="margin-top: -10px; margin-bottom: 20px; padding-left: 5px; color: white; font-size: 12px; font-weight: bold;"></div>
 
 <div id="menuArea" class="hidden">
   <div class="mode-buttons">
