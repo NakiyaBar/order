@@ -29,6 +29,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 data.staff.slice(1).forEach(s => {
                     if(s[0]) staffSelect.innerHTML += `<option>${s[0]}</option>`;
                 });
+            }
 
             // 各メニューの描画
             // 画像を見る限り、1行目から中身があるので slice(0) または filter で空行を除去して表示
