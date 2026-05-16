@@ -21,6 +21,15 @@ window.addEventListener('DOMContentLoaded', () => {
                 });
             }
 
+            // 【追加】「担当名」シートから届いたデータを反映
+            const staffSelect = document.getElementById("staff");
+            if (staffSelect && data.staff) {
+                staffSelect.innerHTML = '<option value="">選択</option>';
+                // A2セルからデータが始まるため slice(1) で1行目を飛ばす
+                data.staff.slice(1).forEach(s => {
+                    if(s[0]) staffSelect.innerHTML += `<option>${s[0]}</option>`;
+                });
+
             // 各メニューの描画
             // 画像を見る限り、1行目から中身があるので slice(0) または filter で空行を除去して表示
             renderMenu("l1Area", "l1", data.liqueur);
@@ -187,19 +196,26 @@ function removeItem(i) { cart.splice(i, 1); openCart(); checkOrder(); }
 
 function sendOrder() {
     const table = document.getElementById("table").value;
+    const staff = document.getElementById("staff").value;
     const btn = document.getElementById("sendBtn");
 
     if (!table) return alert("卓を選択してください");
+    if (!staff) return alert("担当を選択してください");
+if (cart.length === 0) return alert("カートが空です");
 
+    if (btn.disabled) return;
     btn.disabled = true;
     btn.innerText = "送信中...";
 
     fetch(API_URL, {
         method: "POST",
-        // headers を消し、body に直接 JSON 文字列を入れる
-        body: JSON.stringify({ table, items: cart })
+        // body の中に table と items に並べて staff も追加します
+        body: JSON.stringify({ 
+            table: table, 
+            staff: staff, // 【追加】GAS側に担当者名を送る
+            items: cart 
+        })
     })
-
     .then(res => res.json())
     .then(data => {
         if (data.result === "success") {
@@ -217,6 +233,7 @@ function sendOrder() {
     .catch(err => {
         console.error(err);
         alert("通信エラー");
+        btn.innerText = "送信";
         btn.disabled = false;
     });
 }
