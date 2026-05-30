@@ -175,19 +175,44 @@ function addToCart() {
     checkOrder();
     alert("カートに追加しました");
 }
+// カートの中身を表示する（仕分け並び替え版）
 function openCart() {
     const list = document.getElementById("cartList");
     if (!list) return;
-    list.innerHTML = cart.map((c, i) => `
+
+    // 種類ごとに分けるための箱
+    let normalDrinks = [];
+    let originalDrinks = [];
+    let foodItems = [];
+
+    // カートの中身をループして仕分ける（元の配列のインデックス `i` も一緒に保存する）
+    cart.forEach((c, i) => {
+        const itemWithIndex = { ...c, originalIndex: i };
+        
+        if (c.name.indexOf("【オリ】") === 0) {
+            originalDrinks.push(itemWithIndex);
+        } else if (c.name.indexOf("【フード】") === 0) {
+            foodItems.push(itemWithIndex);
+        } else {
+            normalDrinks.push(itemWithIndex);
+        }
+    });
+
+    // ドリンク ➔ オリカク ➔ フード の順番で1つの配列に合体させる
+    const sortedCart = [...normalDrinks, ...originalDrinks, ...foodItems];
+
+    // 画面に表示するHTMLを組み立てる
+    list.innerHTML = sortedCart.map(c => `
     <div class="cart-item">
-      <button class="delete-btn" onclick="removeItem(${i})">削除</button>
+      <button class="delete-btn" onclick="removeItem(${c.originalIndex})">削除</button>
       <span class="drink-name">${c.name}</span>
       <div class="qty-area">
-        <button class="qty-btn" onclick="changeQty(${i},-1)">−</button>
-        <span class="qty-num">${c.qty}</span>
-        <button class="qty-btn" onclick="changeQty(${i},1)">＋</button>
+        <button class="qty-btn" onclick="changeQty(${c.originalIndex},-1)">−</button>
+        <span class="qty-num" style="min-width:24px; text-align:center;">${c.qty}</span>
+        <button class="qty-btn" onclick="changeQty(${c.originalIndex},1)">＋</button>
       </div>
     </div>`).join("");
+    
     document.getElementById("cartModal").style.display = "block";
 }
 
