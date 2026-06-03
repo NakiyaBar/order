@@ -32,7 +32,6 @@ window.addEventListener('DOMContentLoaded', () => {
             }
 
             // 各メニューの描画
-            // 画像を見る限り、1行目から中身があるので slice(0) または filter で空行を除去して表示
             renderMenu("l1Area", "l1", data.liqueur);
             renderMenu("l2Area", "l2", data.liqueur);
             renderOriginal(data.original);
@@ -65,9 +64,10 @@ function renderMenu(id, name, data) {
 
     el.innerHTML = items.map(item => {
         const color = getColorClass(item[0]);
+        // inputタグに data-color="${item[2] || ''}" を追加してC列（色情報）を保持させる
         return `
         <label>
-          <input type="radio" name="${name}" value="${item[0]}">
+          <input type="radio" name="${name}" value="${item[0]}" data-color="${item[2] || ''}">
           <div class="card ${color}">
             <div>${item[0]}</div>
             <div style="font-size:10px;">${item[1] || ''}</div>
@@ -134,16 +134,16 @@ function checkOrder() {
     if (btn) btn.disabled = cart.length === 0;
 }
 
-// 【修正箇所①】カートに追加する際に読み方も保存する
+// カートに追加する際に読み方も保存する（さらに色情報も保持）
 function addToCart() {
     let name = "";
-    let ruby = ""; // 読み方用の変数を追加
+    let ruby = ""; // 読み方用の変数
+    let colors = ""; // 色情報を入れる変数
 
     if (isOriginal) {
         const el = document.querySelector('input[name="original"]:checked');
         if (!el) return alert("カクテルを選択してください");
         name = "【オリ】" + el.value;
-        // オリジナルも読み方（2列目）があれば取得するように変更検討可
     } else if (isFood) {
         const el = document.querySelector('input[name="food"]:checked');
         if (!el) return alert("フードを選択してください");
@@ -155,27 +155,41 @@ function addToCart() {
 
         if (!l1El || !l2El || !s) return alert("メニューをすべて選択してください");
 
-        // 読み方（カード内の隠し属性や、直接DOMから取得）
-        // ここでは一番確実な「選択されたカード内のテキスト」から取得するロジックにします
         const l1Name = l1El.value;
         const l1Ruby = l1El.parentElement.querySelector('div[style*="font-size:10px"]').innerText;
         const l2Name = l2El.value;
         const l2Ruby = l2El.parentElement.querySelector('div[style*="font-size:10px"]').innerText;
 
+        // リキュールボタンからC列の色情報を取得
+        const l1Color = l1El.getAttribute("data-color");
+        const l2Color = l2El.getAttribute("data-color");
+
         name = `${l1Name}${l2Name}${s === "あり" ? "サワー" : "カクテル"}`;
         ruby = `（${l1Ruby}${l2Ruby}）`; // 読み方をセット
+
+        // リキュール①と②の色があれば「・」で繋ぐ
+        if (l1Color || l2Color) {
+            colors = `${l1Color || ""}${l1Color && l2Color ? "・" : ""}${l2Color || ""}`;
+        }
     }
 
     // カートに「名前 + 読み方」で登録する
     const fullName = name + (ruby ? " " + ruby : "");
     const ex = cart.find(i => i.name === fullName);
-    ex ? ex.qty++ : cart.push({ name: fullName, qty: 1 });
+    
+    // 色情報（colors）も一緒にカートのデータとして保存
+    if (ex) {
+        ex.qty++;
+    } else {
+        cart.push({ name: fullName, qty: 1, colors: colors });
+    }
 
     document.querySelectorAll('input[type="radio"]').forEach(i => i.checked = false);
     checkOrder();
     alert("カートに追加しました");
 }
-// カートの中身を表示する（仕分け並び替え版）
+
+// カートの中身を表示する（仕分け並び替え版 ＋ 数量の後ろに色情報追加）
 function openCart() {
     const list = document.getElementById("cartList");
     if (!list) return;
@@ -202,16 +216,21 @@ function openCart() {
     const sortedCart = [...normalDrinks, ...originalDrinks, ...foodItems];
 
     // 画面に表示するHTMLを組み立てる
-    list.innerHTML = sortedCart.map(c => `
-    <div class="cart-item">
-      <button class="delete-btn" onclick="removeItem(${c.originalIndex})">削除</button>
-      <span class="drink-name">${c.name}</span>
-      <div class="qty-area">
-        <button class="qty-btn" onclick="changeQty(${c.originalIndex},-1)">−</button>
-        <span class="qty-num" style="min-width:24px; text-align:center;">${c.qty}</span>
-        <button class="qty-btn" onclick="changeQty(${c.originalIndex},1)">＋</button>
-      </div>
-    </div>`).join("");
+    list.innerHTML = sortedCart.map(c => {
+        // 色情報があれば、数量の右側に半角スペースを空けて表示用の文字列を作る
+        const colorDisplay = c.colors ? ` ${c.colors}` : "";
+
+        return `
+        <div class="cart-item">
+          <button class="delete-btn" onclick="removeItem(${c.originalIndex})">削除</button>
+          <span class="drink-name">${c.name}</span>
+          <div class="qty-area">
+            <button class="qty-btn" onclick="changeQty(${c.originalIndex},-1)">−</button>
+            <span class="qty-num" style="min-width:24px; text-align:center;">${c.qty}${colorDisplay}</span>
+            <button class="qty-btn" onclick="changeQty(${c.originalIndex},1)">＋</button>
+          </div>
+        </div>`;
+    }).join("");
     
     document.getElementById("cartModal").style.display = "block";
 }
@@ -223,11 +242,11 @@ function removeItem(i) { cart.splice(i, 1); openCart(); checkOrder(); }
 // 送信処理
 function sendOrder() {
     const table = document.getElementById("table").value;
-    const staff = document.getElementById("staff").value; // 【追加】画面から担当名を取得
+    const staff = document.getElementById("staff").value; // 画面から担当名を取得
     const btn = document.getElementById("sendBtn");
 
     if (!table) return alert("卓を選択してください");
-    if (!staff) return alert("担当を選択してください"); // 【追加】未選択チェック
+    if (!staff) return alert("担当を選択してください"); // 未選択チェック
     if (cart.length === 0) return alert("カートが空です");
 
     if (btn.disabled) return;
@@ -236,7 +255,7 @@ function sendOrder() {
 
     fetch(API_URL, {
         method: "POST",
-        // 【修正】bodyの中に「staff」も追加して一緒にGASへ送信する
+        // bodyの中に「staff」も追加して一緒にGASへ送信する
         body: JSON.stringify({ 
             table: table, 
             staff: staff, 
