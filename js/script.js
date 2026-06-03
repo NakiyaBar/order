@@ -2,7 +2,7 @@
  * NAKIYA BAR オーダーシート用メインスクリプト
  */
 
-const API_URL = "https://script.google.com/macros/s/AKfycbytyZg5-DXxZmEevQXEtkRWE4Tbbl9NFlc-3UQK86Y50z1hg-Fdx9_ee04cH_6zuHWH/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbwmCtWbn6-qJCWmqLuF8M59Fe4wXFt7fZMgISbW_sa_I754O7FLymRr4aHmRs0bSMen/exec";
 
 let cart = [];
 let isOriginal = false;
@@ -21,7 +21,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 });
             }
 
-            // 【追加】「担当名」シートから届いたデータを反映
+            // 【構文エラー修正】「担当名」シートから届いたデータを反映
             const staffSelect = document.getElementById("staff");
             if (staffSelect && data.staff) {
                 staffSelect.innerHTML = '<option value="">選択</option>';
@@ -64,7 +64,7 @@ function renderMenu(id, name, data) {
 
     el.innerHTML = items.map(item => {
         const color = getColorClass(item[0]);
-        // inputタグに data-color="${item[2] || ''}" を追加してC列（色情報）を保持させる
+        // 【修正】inputタグに data-color="${item[2] || ''}" を追加してC列（色情報）を保持させる
         return `
         <label>
           <input type="radio" name="${name}" value="${item[0]}" data-color="${item[2] || ''}">
@@ -189,10 +189,17 @@ function addToCart() {
     alert("カートに追加しました");
 }
 
-// カートの中身を表示する（仕分け並び替え版 ＋ 数量の後ろに色情報追加）
+// カートの中身を表示する（仕分け並び替え版 ＋ 数量の後ろに色情報追加 ＋ 卓番号表示）
 function openCart() {
     const list = document.getElementById("cartList");
     if (!list) return;
+
+    // 【追加】ポップアップの右上に選択されている卓名を表示する
+    const currentTable = document.getElementById("table").value;
+    const cartTableEl = document.getElementById("cartTable");
+    if (cartTableEl) {
+        cartTableEl.innerText = currentTable ? `卓：${currentTable}` : "";
+    }
 
     // 種類ごとに分けるための箱
     let normalDrinks = [];
@@ -255,7 +262,6 @@ function sendOrder() {
 
     fetch(API_URL, {
         method: "POST",
-        // bodyの中に「staff」も追加して一緒にGASへ送信する
         body: JSON.stringify({ 
             table: table, 
             staff: staff, 
