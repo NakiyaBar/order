@@ -2,7 +2,7 @@
  * NAKIYA BAR オーダーシート用メインスクリプト
  */
 
-const API_URL = "https://script.google.com/macros/s/AKfycbytyZg5-DXxZmEevQXEtkRWE4Tbbl9NFlc-3UQK86Y50z1hg-Fdx9_ee04cH_6zuHWH/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbwmCtWbn6-qJCWmqLuF8M59Fe4wXFt7fZMgISbW_sa_I754O7FLymRr4aHmRs0bSMen/exec";
 
 let cart = [];
 let isOriginal = false;
@@ -21,7 +21,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 });
             }
 
-            // 【構文エラー修正】「担当名」シートから届いたデータを反映
+            // 「担当名」シートから届いたデータを反映
             const staffSelect = document.getElementById("staff");
             if (staffSelect && data.staff) {
                 staffSelect.innerHTML = '<option value="">選択</option>';
@@ -64,7 +64,7 @@ function renderMenu(id, name, data) {
 
     el.innerHTML = items.map(item => {
         const color = getColorClass(item[0]);
-        // 【修正】inputタグに data-color="${item[2] || ''}" を追加してC列（色情報）を保持させる
+        // inputタグに data-color="${item[2] || ''}" を追加してC列（色情報）を保持させる
         return `
         <label>
           <input type="radio" name="${name}" value="${item[0]}" data-color="${item[2] || ''}">
@@ -189,16 +189,17 @@ function addToCart() {
     alert("カートに追加しました");
 }
 
-// カートの中身を表示する（仕分け並び替え版 ＋ 数量の後ろに色情報追加 ＋ 卓番号表示）
+// カートの中身を表示する（仕分け並び替え版 ＋ 数量のみ表示 ＋ 卓番号を内側に寄せる）
 function openCart() {
     const list = document.getElementById("cartList");
     if (!list) return;
 
-    // 【追加】ポップアップの右上に選択されている卓名を表示する
+    // ポップアップの右上に選択されている卓名を表示する（padding-rightで少し左に寄せました）
     const currentTable = document.getElementById("table").value;
     const cartTableEl = document.getElementById("cartTable");
     if (cartTableEl) {
         cartTableEl.innerText = currentTable ? `卓：${currentTable}` : "";
+        cartTableEl.style.paddingRight = "8px"; 
     }
 
     // 種類ごとに分けるための箱
@@ -206,7 +207,7 @@ function openCart() {
     let originalDrinks = [];
     let foodItems = [];
 
-    // カートの中身をループして仕分ける（元の配列のインデックス `i` も一緒に保存する）
+    // カートの中身をループして仕分ける
     cart.forEach((c, i) => {
         const itemWithIndex = { ...c, originalIndex: i };
         
@@ -219,25 +220,20 @@ function openCart() {
         }
     });
 
-    // ドリンク ➔ オリカク ➔ フード の順番で1つの配列に合体させる
+    // ドリンク ➔ オリカク ➔ フード の順番で合体
     const sortedCart = [...normalDrinks, ...originalDrinks, ...foodItems];
 
-    // 画面に表示するHTMLを組み立てる
-    list.innerHTML = sortedCart.map(c => {
-        // 色情報があれば、数量の右側に半角スペースを空けて表示用の文字列を作る
-        const colorDisplay = c.colors ? ` ${c.colors}` : "";
-
-        return `
+    // 画面に表示するHTML（※画面上は c.colors を表示させず、数量のみにしています）
+    list.innerHTML = sortedCart.map(c => `
         <div class="cart-item">
           <button class="delete-btn" onclick="removeItem(${c.originalIndex})">削除</button>
           <span class="drink-name">${c.name}</span>
           <div class="qty-area">
             <button class="qty-btn" onclick="changeQty(${c.originalIndex},-1)">−</button>
-            <span class="qty-num" style="min-width:24px; text-align:center;">${c.qty}${colorDisplay}</span>
+            <span class="qty-num" style="min-width:24px; text-align:center;">${c.qty}</span>
             <button class="qty-btn" onclick="changeQty(${c.originalIndex},1)">＋</button>
           </div>
-        </div>`;
-    }).join("");
+        </div>`).join("");
     
     document.getElementById("cartModal").style.display = "block";
 }
@@ -249,11 +245,11 @@ function removeItem(i) { cart.splice(i, 1); openCart(); checkOrder(); }
 // 送信処理
 function sendOrder() {
     const table = document.getElementById("table").value;
-    const staff = document.getElementById("staff").value; // 画面から担当名を取得
+    const staff = document.getElementById("staff").value;
     const btn = document.getElementById("sendBtn");
 
     if (!table) return alert("卓を選択してください");
-    if (!staff) return alert("担当を選択してください"); // 未選択チェック
+    if (!staff) return alert("担当を選択してください");
     if (cart.length === 0) return alert("カートが空です");
 
     if (btn.disabled) return;
