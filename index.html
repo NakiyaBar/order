@@ -60,9 +60,18 @@
   </div>
 </div>
 
+<div class="action-buttons" style="margin-top: 20px;">
+    <button id="addBtn" onclick="addToCart()" style="background:#4cafef; color:white;">カートに追加</button>
+    <button id="orderCheckBtn" onclick="openCart()" disabled>注文確認</button>
+  </div>
+</div>
+
 <div id="cartModal" class="modal" style="display:none;">
   <div class="modal-content">
-    <h3>注文確認</h3>
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #4cafef; padding-bottom: 5px; margin-bottom: 15px;">
+      <h3 style="margin: 0; border: none; padding: 0;">注文確認</h3>
+      <span id="cartTable" style="font-size: 16px; font-weight: bold; color: #333;"></span>
+    </div>
     
     <div id="cartList"></div>
     
