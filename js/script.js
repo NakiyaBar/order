@@ -15,23 +15,19 @@ window.addEventListener('DOMContentLoaded', () => {
             const tableSelect = document.getElementById("table");
             if (tableSelect && data.table) {
                 tableSelect.innerHTML = '<option value="">選択</option>';
-                // 卓：1行目が「卓名」なら slice(1)、最初からデータなら slice(0)
                 data.table.slice(1).forEach(t => {
                     if(t[0]) tableSelect.innerHTML += `<option>${t[0]}</option>`;
                 });
             }
 
-            // 「担当名」シートから届いたデータを反映
             const staffSelect = document.getElementById("staff");
             if (staffSelect && data.staff) {
                 staffSelect.innerHTML = '<option value="">選択</option>';
-                // A2セルからデータが始まるため slice(1) で1行目を飛ばす
                 data.staff.slice(1).forEach(s => {
                     if(s[0]) staffSelect.innerHTML += `<option>${s[0]}</option>`;
                 });
             }
 
-            // 各メニューの描画
             renderMenu("l1Area", "l1", data.liqueur);
             renderMenu("l2Area", "l2", data.liqueur);
             renderOriginal(data.original);
@@ -54,17 +50,15 @@ function getColorClass(name) {
     return colors[name] || "";
 }
 
-// 共通描画：1行目が項目名（リキュール名など）なら飛ばし、データなら出す
 function renderMenu(id, name, data) {
     const el = document.getElementById(id);
     if (!el || !data) return;
     
-    // 空行を除去し、もし1行目が「リキュール名」などの見出しなら除外
     const items = data.filter(item => item[0] && !item[0].includes("名") && item[0] !== "");
 
     el.innerHTML = items.map(item => {
         const color = getColorClass(item[0]);
-        // inputタグに data-color="${item[2] || ''}" を追加してC列（色情報）を保持させる
+        // data-color にC列の色情報を格納
         return `
         <label>
           <input type="radio" name="${name}" value="${item[0]}" data-color="${item[2] || ''}">
@@ -134,11 +128,10 @@ function checkOrder() {
     if (btn) btn.disabled = cart.length === 0;
 }
 
-// カートに追加する際に読み方も保存する（さらに色情報も保持）
 function addToCart() {
     let name = "";
-    let ruby = ""; // 読み方用の変数
-    let colors = ""; // 色情報を入れる変数
+    let ruby = ""; 
+    let colors = ""; 
 
     if (isOriginal) {
         const el = document.querySelector('input[name="original"]:checked');
@@ -160,24 +153,20 @@ function addToCart() {
         const l2Name = l2El.value;
         const l2Ruby = l2El.parentElement.querySelector('div[style*="font-size:10px"]').innerText;
 
-        // リキュールボタンからC列の色情報を取得
         const l1Color = l1El.getAttribute("data-color");
         const l2Color = l2El.getAttribute("data-color");
 
         name = `${l1Name}${l2Name}${s === "あり" ? "サワー" : "カクテル"}`;
-        ruby = `（${l1Ruby}${l2Ruby}）`; // 読み方をセット
+        ruby = `（${l1Ruby}${l2Ruby}）`; 
 
-        // リキュール①と②の色があれば「・」で繋ぐ
         if (l1Color || l2Color) {
             colors = `${l1Color || ""}${l1Color && l2Color ? "・" : ""}${l2Color || ""}`;
         }
     }
 
-    // カートに「名前 + 読み方」で登録する
     const fullName = name + (ruby ? " " + ruby : "");
     const ex = cart.find(i => i.name === fullName);
     
-    // 色情報（colors）も一緒にカートのデータとして保存
     if (ex) {
         ex.qty++;
     } else {
@@ -189,28 +178,22 @@ function addToCart() {
     alert("カートに追加しました");
 }
 
-// カートの中身を表示する（仕分け並び替え版 ＋ 数量のみ表示 ＋ 卓番号を内側に寄せる）
 function openCart() {
     const list = document.getElementById("cartList");
     if (!list) return;
 
-    // ポップアップの右上に選択されている卓名を表示する（padding-rightで少し左に寄せました）
     const currentTable = document.getElementById("table").value;
     const cartTableEl = document.getElementById("cartTable");
     if (cartTableEl) {
         cartTableEl.innerText = currentTable ? `卓：${currentTable}` : "";
-        cartTableEl.style.paddingRight = "8px"; 
     }
 
-    // 種類ごとに分けるための箱
     let normalDrinks = [];
     let originalDrinks = [];
     let foodItems = [];
 
-    // カートの中身をループして仕分ける
     cart.forEach((c, i) => {
         const itemWithIndex = { ...c, originalIndex: i };
-        
         if (c.name.indexOf("【オリ】") === 0) {
             originalDrinks.push(itemWithIndex);
         } else if (c.name.indexOf("【フード】") === 0) {
@@ -220,10 +203,9 @@ function openCart() {
         }
     });
 
-    // ドリンク ➔ オリカク ➔ フード の順番で合体
     const sortedCart = [...normalDrinks, ...originalDrinks, ...foodItems];
 
-    // 画面に表示するHTML（※画面上は c.colors を表示させず、数量のみにしています）
+    // 【修正】画面上は c.colors を表示せず、シンプルに数量だけを表示します
     list.innerHTML = sortedCart.map(c => `
         <div class="cart-item">
           <button class="delete-btn" onclick="removeItem(${c.originalIndex})">削除</button>
@@ -242,7 +224,6 @@ function closeCart() { document.getElementById("cartModal").style.display = "non
 function changeQty(i, d) { cart[i].qty += d; if (cart[i].qty <= 0) cart.splice(i, 1); openCart(); checkOrder(); }
 function removeItem(i) { cart.splice(i, 1); openCart(); checkOrder(); }
 
-// 送信処理
 function sendOrder() {
     const table = document.getElementById("table").value;
     const staff = document.getElementById("staff").value;
@@ -274,7 +255,6 @@ function sendOrder() {
         } else {
             alert("送信エラー: " + data.message);
         }
-
         btn.innerText = "送信";
         btn.disabled = false;
     })
