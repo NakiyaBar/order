@@ -58,7 +58,6 @@ function renderMenu(id, name, data) {
 
     el.innerHTML = items.map(item => {
         const color = getColorClass(item[0]);
-        // data-color にC列の色情報を格納
         return `
         <label>
           <input type="radio" name="${name}" value="${item[0]}" data-color="${item[2] || ''}">
@@ -205,7 +204,6 @@ function openCart() {
 
     const sortedCart = [...normalDrinks, ...originalDrinks, ...foodItems];
 
-    // 【修正】画面上は c.colors を表示せず、シンプルに数量だけを表示します
     list.innerHTML = sortedCart.map(c => `
         <div class="cart-item">
           <button class="delete-btn" onclick="removeItem(${c.originalIndex})">削除</button>
@@ -224,6 +222,7 @@ function closeCart() { document.getElementById("cartModal").style.display = "non
 function changeQty(i, d) { cart[i].qty += d; if (cart[i].qty <= 0) cart.splice(i, 1); openCart(); checkOrder(); }
 function removeItem(i) { cart.splice(i, 1); openCart(); checkOrder(); }
 
+// 【修正】送信時にデータを仕分け・並び替えてからGASへ送るようにしました
 function sendOrder() {
     const table = document.getElementById("table").value;
     const staff = document.getElementById("staff").value;
@@ -237,12 +236,28 @@ function sendOrder() {
     btn.disabled = true;
     btn.innerText = "送信中...";
 
+    // 送信直前に「カクテル ➔ オリカク ➔ フード」の順番に並び替えた新しい配列を作る
+    let normalDrinks = [];
+    let originalDrinks = [];
+    let foodItems = [];
+
+    cart.forEach(c => {
+        if (c.name.indexOf("【オリ】") === 0) {
+            originalDrinks.push(c);
+        } else if (c.name.indexOf("【フード】") === 0) {
+            foodItems.push(c);
+        } else {
+            normalDrinks.push(c);
+        }
+    });
+    const sortedCartForSend = [...normalDrinks, ...originalDrinks, ...foodItems];
+
     fetch(API_URL, {
         method: "POST",
         body: JSON.stringify({ 
             table: table, 
             staff: staff, 
-            items: cart 
+            items: sortedCartForSend // 並び替え済みのデータを送信
         })
     })
     .then(res => res.json())
